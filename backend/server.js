@@ -10,12 +10,10 @@ app.use(express.json());
 
 // připojení k MongoDB (lokálně)
 mongoose
-  .connect('mongodb://localhost:27017/mojedb', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  .connect('mongodb://localhost:27017/mojedb')
   .then(() => console.log('✅ Připojeno k MongoDB'))
   .catch((err) => console.error('❌ Chyba připojení k MongoDB:', err));
+
 
 
 app.get('/api/hello', (req, res) => {
