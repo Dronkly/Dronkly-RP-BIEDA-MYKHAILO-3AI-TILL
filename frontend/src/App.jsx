@@ -1,22 +1,21 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import Hero from "./components/Hero";
+import Values from "./components/Values";
+import Products from "./components/Products";
+import Story from "./components/Story";
+import Reviews from "./components/Reviews";
+import Newsletter from "./components/Newsletter";
+import Footer from "./components/Footer";
 
-function App() {
-  const [message, setMessage] = useState("Načítám zprávu z backendu...")
-
-  useEffect(() => {
-    fetch("http://localhost:5000/api/hello")
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(() => setMessage("Nepodařilo se připojit k backendu ❌"))
-  }, [])
-
+export default function App() {
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-      <h1>Moje Home stránka 🏠</h1>
-      <h2>{message}</h2>
+    <div>
+      <Hero />
+      <Values />
+      <Products />
+      <Story />
+      <Reviews />
+      <Newsletter />
+      <Footer />
     </div>
-  )
+  );
 }
-
-export default App
