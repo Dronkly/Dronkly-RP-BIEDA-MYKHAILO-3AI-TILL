@@ -8,7 +8,7 @@ export default function Hero() {
             <a href="#kolekce">Kolekce</a>
             <a href="#pribeh">Náš příběh</a>
             <a href="#recenze">Recenze</a>
-            <a href="#newsletter">Hodnocení</a>
+            <a href="#newsletter">Přihlásit se</a>
           </div>
         </nav>
 
