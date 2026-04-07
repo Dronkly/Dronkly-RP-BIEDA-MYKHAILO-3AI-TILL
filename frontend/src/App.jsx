@@ -8,6 +8,9 @@ import Footer from "./components/Footer";
 
 export default function App() {
   return (
+    <Router>
+      <Routes>
+        <Route path="/" element={
     <div>
       <Hero />
       <Values />
@@ -17,5 +20,10 @@ export default function App() {
       <Newsletter />
       <Footer />
     </div>
+    } />
+    <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+    </Routes>
+    </Router>
   );
 }
