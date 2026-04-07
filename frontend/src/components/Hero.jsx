@@ -1,6 +1,14 @@
+import heroImage from "../assets/images/hero.png";
 export default function Hero() {
   return (
-    <section className="hero">
+    <section
+  className="hero"
+  style={{
+    backgroundImage: `url(${heroImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center"
+  }}
+>
       <div className="overlay">
         <nav className="navbar">
           <div className="logo">EkoModa</div>
