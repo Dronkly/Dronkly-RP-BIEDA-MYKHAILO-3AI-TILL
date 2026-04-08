@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Dashboard = () => {
+ const Dashboard = () => {
   return (
     <div className="dashboard-page">
         <div className="dashboard-box">
@@ -11,3 +11,4 @@ export const Dashboard = () => {
   );
 };
 
+export default Dashboard

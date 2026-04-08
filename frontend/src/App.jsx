@@ -1,3 +1,5 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import Hero from "./components/Hero";
 import Values from "./components/Values";
 import Products from "./components/Products";
@@ -6,7 +8,10 @@ import Reviews from "./components/Reviews";
 import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
 
-export default function App() {
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+
+ function Home() {
   return (
     
       
@@ -21,12 +26,23 @@ export default function App() {
       <Footer />
     </div>
      
-       //{/* <Route path="/login" element={<Login />} /> */}
-       //{/* <Route path="/dashboard" element={<Dashboard />} /> */}
-        
-         
-        
+   
+  );
+}
+
+export default function App() {
+  return (
     
+      <Routes>
+        {/* homepage */}
+        <Route path="/" element={<Home />} />
+
+        {/* login */}
+        <Route path="/login" element={<Login />} />
+
+        {/* dashboard */}
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
    
   );
 }
