@@ -1,3 +1,10 @@
+/* 
+  Tento CSS kód byl částečně vytvořen samostatně autorem projektu
+  a částečně s využitím nástroje ChatGPT (OpenAI).
+  Kód byl upraven, pochopen a přizpůsoben potřebám projektu EkoModa.
+*/
+
+
 * {
   margin: 0;
   padding: 0;
@@ -271,4 +278,82 @@ h1, h2, h3 {
     flex-direction: column;
     gap: 15px;
   }
+}
+
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-position: center;
+  background-size: cover;
+  padding: 30px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.login-card h1 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #2f5d50;
+  font-size: 2.6rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-form label {
+  font-weight: 600;
+  color: #2b2b2b;
+  margin-top: 6px;
+}
+
+.login-form input {
+  padding: 14px 16px;
+  border: 1px solid #d7d0c7;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.login-form input:focus {
+  border-color: #2f5d50;
+}
+
+.login-form button {
+  margin-top: 14px;
+  background: #2f5d50;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f7f3ed;
+  padding: 30px;
+}
+
+.dashboard-box {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  text-align: center;
 }
