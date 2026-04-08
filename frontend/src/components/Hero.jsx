@@ -1,4 +1,6 @@
 import heroImage from "../assets/images/hero.png";
+import { Link } from 'react-router-dom';
+
 export default function Hero() {
   return (
     <section
@@ -16,7 +18,7 @@ export default function Hero() {
             <a href="#kolekce">Kolekce</a>
             <a href="#pribeh">Náš příběh</a>
             <a href="#recenze">Recenze</a>
-            <a href="#newsletter">Přihlásit se</a>
+            <Link to="/login">Přihlásit se</Link>
           </div>
         </nav>
 
