@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import login from '../assets/images/login.png';
+import axios from 'axios';
 
 const Register = () => {
   const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -24,7 +27,29 @@ const Register = () => {
       return;
     }
 
-    navigate('/login');
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
+        name,
+        surname,
+        email,
+        password
+      });
+
+   
+  setSuccess(response.data.message || 'Registrace proběhla úspěšně.');
+
+      setName('');
+      setSurname('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registrace se nepodařila.');
+    }
   };
 
   return (
@@ -46,13 +71,23 @@ const Register = () => {
         {error && <div className="login-error">{error}</div>}
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="name">Jméno a přijmení</label>
+          <label htmlFor="name">Jméno</label>
           <input
             id="name"
             type="text"
             placeholder="Zadej své jméno"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <label htmlFor="surname">Přijmení</label>
+          <input
+            id="surname"
+            type="text"
+            placeholder="Zadej své přijmení"
+            value={surname}
+            onChange={(e) => setSurname(e.target.value)}
             required
           />
 
