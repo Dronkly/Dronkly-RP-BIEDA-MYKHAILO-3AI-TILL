@@ -1,26 +1,34 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = express();
 
-// middlewares
 app.use(cors());
 app.use(express.json());
-
-// připojení k MongoDB (lokálně)
-mongoose
-  .connect('mongodb://localhost:27017/mojedb')
-  .then(() => console.log('✅ Připojeno k MongoDB'))
-  .catch((err) => console.error('❌ Chyba připojení k MongoDB:', err));
-
-
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Ahoj z backendu! 👋' });
 });
 
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server běží na http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+
+console.log('MONGO_URI:', process.env.MONGO_URI ? 'načteno' : 'nenačteno');
+
+mongoose
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000
+  })
+  .then(() => {
+    console.log('✅ Připojeno k MongoDB');
+
+    app.listen(PORT, () => {
+      console.log(`Server běží na http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Chyba připojení k MongoDB:', err.message);
+  });

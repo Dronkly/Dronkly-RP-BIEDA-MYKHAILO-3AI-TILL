@@ -51,9 +51,23 @@ import login from '../assets/images/login.png';
 
         <button type="submit">Přihlásit se</button>
       </form>
+
+      <div className="register">
+  <p>Nemáš účet?</p>
+  <button
+    type="button"
+    onClick={() => navigate('/register')}
+    className="register-button"
+  >
+    Registrovat se
+  </button>
+</div>
     </div>
   </div>
   );
+
+
+
 
 }
 export default Login;

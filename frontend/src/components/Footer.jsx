@@ -6,7 +6,7 @@ export default function Footer() {
         <div>
           <a href="#kolekce">Obchod</a>
           <a href="#pribeh">O nás</a>
-          <a href="#wdeewd">Kontakt</a>
+          <a href="#newsletter">Kontakt</a>
         </div>
       </div>
     </footer>
