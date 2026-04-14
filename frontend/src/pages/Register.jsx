@@ -46,7 +46,7 @@ const Register = () => {
         {error && <div className="login-error">{error}</div>}
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="name">Jméno</label>
+          <label htmlFor="name">Jméno a přijmení</label>
           <input
             id="name"
             type="text"

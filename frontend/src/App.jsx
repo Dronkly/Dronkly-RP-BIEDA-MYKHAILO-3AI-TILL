@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Register from "./pages/Register";
 
  function Home() {
   return (
@@ -42,6 +43,9 @@ export default function App() {
 
         {/* dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/*register*/}
+        <Route path="/register" element={<Register />} />
       </Routes>
    
   );
