@@ -4,5 +4,6 @@ const { registerUser, verifyCode  } = require('../controlers/auth');
 
 router.post('/verify-code', verifyCode);
 router.post('/register', registerUser);
+router.post('/login', loginUser);
 
 module.exports = router;
