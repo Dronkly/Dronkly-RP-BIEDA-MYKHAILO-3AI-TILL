@@ -1,4 +1,13 @@
 const User = require('../models/User');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 const registerUser = async (req, res) => {
   try {
@@ -8,33 +17,82 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Vyplň všechna pole.' });
     }
 
-    const existingUser = await User.findOne({ email });
+     let existingUser = await User.findOne({ email });
+
+       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+       const expires = new Date(Date.now() + 10 * 60 * 1000);
 
     if (existingUser) {
-      return res.status(409).json({ message: 'Uživatel s tímto emailem už existuje.' });
+      if (existingUser.isVerified) {
+        return res.status(409).json({ message: 'Uživatel s tímto emailem už existuje.' });
+      }
+
+      existingUser.name = name;
+      existingUser.surname = surname;
+      existingUser.password = password;
+      existingUser.verificationCode = verificationCode;
+      existingUser.verificationCodeExpires = expires;
+
+      await existingUser.save();
+    } else {
+      existingUser = await User.create({
+        name,
+        surname,
+        email,
+        password,
+        isVerified: false,
+        verificationCode,
+        verificationCodeExpires: expires,
+      });
     }
 
-    const newUser = new User({
-      name,
-      surname,
-      email,
-      password,
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Ověřovací kód k registraci',
+      text: `Tvůj ověřovací kód je: ${verificationCode}`,
     });
 
-    await newUser.save();
-
-    res.status(201).json({
-      message: 'Registrace proběhla úspěšně.',
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        surname: newUser.surname,
-        email: newUser.email,
-      },
+    res.status(200).json({
+      message: 'Ověřovací kód byl odeslán na email.',
     });
   } catch (error) {
-    res.status(500).json({ message: 'Chyba serveru.' });
+    res.status(500).json({ message: 'Chyba serveru při registraci.' });
   }
 };
 
-module.exports = { registerUser };
+const verifyCode = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Uživatel nebyl nalezen.' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Účet už je ověřený.' });
+    }
+
+    if (user.verificationCode !== code) {
+      return res.status(400).json({ message: 'Neplatný ověřovací kód.' });
+    }
+
+    if (!user.verificationCodeExpires || user.verificationCodeExpires < new Date()) {
+      return res.status(400).json({ message: 'Platnost kódu vypršela.' });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = '';
+    user.verificationCodeExpires = null;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Email byl úspěšně ověřen.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Chyba serveru při ověření.' });
+  }
+};
+
+module.exports = { registerUser, verifyCode };
