@@ -8,15 +8,26 @@ import login from '../assets/images/login.png';
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-   const handleSubmit = (e) => {
+
+   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (email === 'test@test.cz' && password === '123456') {
-      navigate('/dashboard');
-    } else {
-      setError('Špatný email nebo heslo');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password,
+      });
+
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      navigate('/');
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Chyba při přihlášení.');
     }
   };
+  
+
   return (
     <div
   className="login-page"
