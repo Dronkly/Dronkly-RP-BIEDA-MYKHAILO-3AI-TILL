@@ -1,6 +1,7 @@
 import heroImage from "../assets/images/hero.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { User } from "lucide-react";       
 
 export default function Hero() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -41,10 +42,10 @@ export default function Hero() {
             ) : (
               <div className="profile-menu-wrapper">
                 <button
-                  className="profile-icon-btn"
-                  onClick={() => setMenuOpen(!menuOpen)}
-                >
-                  👤
+                className="profile-icon-btn"
+                onClick={() => setMenuOpen(!menuOpen)}
+>
+                <User size={28} />
                 </button>
 
                 {menuOpen && (
