@@ -2,12 +2,16 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+
+
 
 const registerUser = async (req, res) => {
   try {
@@ -57,8 +61,9 @@ const registerUser = async (req, res) => {
       message: 'Ověřovací kód byl odeslán na email.',
     });
   } catch (error) {
-    res.status(500).json({ message: 'Chyba serveru při registraci.' });
-  }
+  console.log('CHYBA REGISTER:', error);
+  res.status(500).json({ message: 'Chyba serveru při registraci.' });
+}
 };
 
 const verifyCode = async (req, res) => {

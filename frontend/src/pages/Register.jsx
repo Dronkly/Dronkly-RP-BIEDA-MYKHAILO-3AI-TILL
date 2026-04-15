@@ -83,7 +83,7 @@ const Register = () => {
 
         {error && <div className="login-error">{error}</div>}
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleRegister}>
           <label htmlFor="name">Jméno</label>
           <input
             id="name"

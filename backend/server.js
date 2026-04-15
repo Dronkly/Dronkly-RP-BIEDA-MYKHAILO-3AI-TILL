@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-const authRoutes = require('./routes/auth');
 
 dotenv.config();
+
+const authRoutes = require('./routes/auth');
+
+
 
 const app = express();
 
@@ -21,6 +24,8 @@ app.get('/api/hello', (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 console.log('MONGO_URI:', process.env.MONGO_URI ? 'načteno' : 'nenačteno');
+console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'načteno' : 'nenačteno');
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'načteno' : 'nenačteno');
 
 mongoose
   .connect(process.env.MONGO_URI, {
