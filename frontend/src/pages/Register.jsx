@@ -9,13 +9,16 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (password !== confirmPassword) {
       setError('Hesla se neshodují.');
@@ -35,20 +38,30 @@ const Register = () => {
         password
       });
 
-   
-  setSuccess(response.data.message || 'Registrace proběhla úspěšně.');
+      setSuccess(response.data.message);
+      setCodeSent(true);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registrace se nepodařila.');
+    }
+  };
 
-      setName('');
-      setSurname('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+  const handleVerifyCode = async () => {
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/verify-code', {
+        email,
+        code: verificationCode
+      });
+
+      setSuccess(response.data.message);
 
       setTimeout(() => {
         navigate('/login');
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registrace se nepodařila.');
+      setError(err.response?.data?.message || 'Ověření kódu se nepodařilo.');
     }
   };
 
@@ -91,7 +104,7 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="email">Emailová adresa</label>
+         <label htmlFor="email">Emailová adresa</label>
           <input
             id="email"
             type="email"
@@ -123,6 +136,25 @@ const Register = () => {
 
           <button type="submit">Vytvořit účet</button>
         </form>
+            
+             {codeSent && (
+          <div className="verification-box">
+            <label htmlFor="verificationCode">Ověřovací kód</label>
+            <input
+              id="verificationCode"
+              type="text"
+              placeholder="Zadej kód z emailu"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+            />
+            <button type="button" onClick={handleVerifyCode}>
+              Potvrdit kód
+            </button>
+          </div>
+        )}
+
+
+
 
         <div className="login-register">
           <p>Už účet máš?</p>
