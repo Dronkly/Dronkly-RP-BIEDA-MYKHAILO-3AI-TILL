@@ -71,11 +71,24 @@ export default function Hero() {
           <h1>Oblečení, které dává smysl.</h1>
           <p>Udržitelné materiály. Férová výroba. Styl bez kompromisů.</p>
           <div className="hero-buttons">
-            <button>Prohlédnout kolekci</button>
-            <button className="secondary">Zjistit více</button>
-          </div>
+             <button onClick={() => document.getElementById('kolekce')?.scrollIntoView({ behavior: 'smooth' })}>
+             Prohlédnout kolekci
+            </button>
+
+            <button
+            className="secondary"
+            onClick={() => document.getElementById('pribeh')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+             Zjistit více
+           </button>
+
+           </div>
         </div>
       </div>
+      <button onClick={() => navigate('/about')}>
+  Náš příběh
+</button>
     </section>
+    
   );
 }

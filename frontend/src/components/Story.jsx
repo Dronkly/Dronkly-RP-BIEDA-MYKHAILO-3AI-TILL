@@ -1,4 +1,13 @@
+import { useNavigate } from "react-router-dom";
+
+
+
+
+
+
 export default function Story() {
+
+   const navigate = useNavigate();
   return (
     <section id="pribeh" className="story section">
       <div className="container story-grid">
@@ -15,7 +24,9 @@ export default function Story() {
             navrhujeme tak, aby byl nadčasový, pohodlný a vyrobený z kvalitních
             přírodních nebo recyklovaných materiálů.
           </p>
-          <button>Náš příběh</button>
+          <button onClick={() => navigate('/about')}>
+           Náš příběh
+         </button>
         </div>
       </div>
     </section>

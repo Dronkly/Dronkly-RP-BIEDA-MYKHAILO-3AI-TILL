@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import About from "./pages/About";
 
  function Home() {
   return (
@@ -49,6 +50,9 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         {/*Profile submenu */}
         <Route path="/profile" element={<Profile />} />
+
+        {/*O nas */}
+        <Route path="/about" element={<About />} />
       </Routes>
    
   );
