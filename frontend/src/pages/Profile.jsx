@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -133,6 +135,7 @@ const Profile = () => {
   const initials = `${formData.name?.[0] || ''}${formData.surname?.[0] || ''}`.toUpperCase();
 
   return (
+    
     <div className="profile-page">
       <div className="profile-shell">
         <div className="profile-main-card">
@@ -144,11 +147,17 @@ const Profile = () => {
                 Správa osobních údajů, kontaktů a platebních metod.
               </p>
             </div>
+            <div className="profile-topbar-actions">
+    <button className="profile-home-btn" onClick={() => navigate('/')}>
+      Zpět na domů
+    </button>
+
 
             <div className="profile-avatar-large">
               {initials || 'U'}
             </div>
           </div>
+        </div>
 
           {message && <div className="register-success">{message}</div>}
           {error && <div className="login-error">{error}</div>}
