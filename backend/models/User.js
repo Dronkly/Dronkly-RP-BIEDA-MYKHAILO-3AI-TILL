@@ -24,6 +24,36 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+     phone: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    birthDate: {
+      type: String,
+      default: '',
+    },
+    street: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    city: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    zipCode: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    country: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+
     role: {
      type:String,
      default: 'User'
