@@ -34,7 +34,6 @@ export default function Hero() {
 
           <div className="nav-links">
             <a href="#kolekce">Kolekce</a>
-            <a href="#pribeh">Náš příběh</a>
             <a href="#recenze">Recenze</a>
             
              {!user ? (
@@ -71,9 +70,9 @@ export default function Hero() {
           <h1>Oblečení, které dává smysl.</h1>
           <p>Udržitelné materiály. Férová výroba. Styl bez kompromisů.</p>
           <div className="hero-buttons">
-             <button onClick={() => document.getElementById('kolekce')?.scrollIntoView({ behavior: 'smooth' })}>
-             Prohlédnout kolekci
-            </button>
+          <button onClick={() => navigate('/catalog')}>
+           Prohlédnout kolekci
+          </button>
 
             <button
             className="secondary"
@@ -85,9 +84,7 @@ export default function Hero() {
            </div>
         </div>
       </div>
-      <button onClick={() => navigate('/about')}>
-  Náš příběh
-</button>
+      
     </section>
     
   );

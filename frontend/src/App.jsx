@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
+import Catalog from "./pages/Catalog";
 
  function Home() {
   return (
@@ -53,6 +54,10 @@ export default function App() {
 
         {/*O nas */}
         <Route path="/about" element={<About />} />
+
+
+               {/*Katalog pro nakupy */}
+        <Route path="/catalog" element={<Catalog />} />
       </Routes>
    
   );
