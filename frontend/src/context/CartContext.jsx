@@ -16,11 +16,11 @@ export function CartProvider({ children }) {
 
   const addToCart = (product) => {
     setCartItems((prev) => {
-      const existingProduct = prev.find((item) => item._id === product._id);
+      const existingProduct = prev.find((item) => item.id === product.id);
 
       if (existingProduct) {
         return prev.map((item) =>
-          item._id === product._id
+          item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -31,13 +31,13 @@ export function CartProvider({ children }) {
   };
 
   const removeFromCart = (productId) => {
-    setCartItems((prev) => prev.filter((item) => item._id !== productId));
+    setCartItems((prev) => prev.filter((item) => item.id !== productId));
   };
 
   const increaseQuantity = (productId) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item._id === productId
+        item.id === productId
           ? { ...item, quantity: item.quantity + 1 }
           : item
       )
@@ -48,7 +48,7 @@ export function CartProvider({ children }) {
     setCartItems((prev) =>
       prev
         .map((item) =>
-          item._id === productId
+          item.id === productId
             ? { ...item, quantity: item.quantity - 1 }
             : item
         )

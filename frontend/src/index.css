@@ -1125,3 +1125,22 @@ h1, h2, h3 {
     grid-template-columns: 1fr;
   }
 }
+
+
+.catalog-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.catalog-buy-btn {
+  padding: 10px 14px;
+  border: none;
+  background: #111;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.catalog-buy-btn:hover {
+  opacity: 0.9;
+}

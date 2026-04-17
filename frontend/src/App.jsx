@@ -7,6 +7,7 @@ import Story from "./components/Story";
 import Reviews from "./components/Reviews";
 import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
+import { CartProvider } from './context/CartContext';
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -14,6 +15,8 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Catalog from "./pages/Catalog";
+import CartDrawer from "./components/CartDrawer";
+import Header from "./components/Header";
 
  function Home() {
   return (
@@ -28,6 +31,7 @@ import Catalog from "./pages/Catalog";
       <Reviews />
       <Newsletter />
       <Footer />
+      
     </div>
      
    
@@ -36,7 +40,11 @@ import Catalog from "./pages/Catalog";
 
 export default function App() {
   return (
-    
+
+    <BrowserRouter>
+     <CartProvider>
+      <Header />
+      <CartDrawer />
       <Routes>
         {/* homepage */}
         <Route path="/" element={<Home />} />
@@ -59,6 +67,8 @@ export default function App() {
                {/*Katalog pro nakupy */}
         <Route path="/catalog" element={<Catalog />} />
       </Routes>
+      </CartProvider>
+      </BrowserRouter>
    
   );
 }

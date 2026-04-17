@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useCart } from '../context/CartContext';
+
 const products = [
   {
     id: 1,
     name: 'Organic Tričko',
-    price: '590 Kč',
+    price: 590,
     category: 'Trička',
     material: 'Bio bavlna',
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
@@ -13,7 +15,7 @@ const products = [
   {
     id: 2,
     name: 'Recyklovaná Mikina',
-    price: '1190 Kč',
+    price: 1190,
     category: 'Mikiny',
     material: 'Recyklovaný materiál',
     image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=1200&auto=format&fit=crop',
@@ -21,7 +23,7 @@ const products = [
   {
     id: 3,
     name: 'Lněné Kalhoty',
-    price: '1490 Kč',
+    price: 1490,
     category: 'Kalhoty',
     material: 'Len',
     image: 'https://images.pexels.com/photos/18160750/pexels-photo-18160750.jpeg?auto=compress&cs=tinysrgb&w=1200',
@@ -29,7 +31,7 @@ const products = [
   {
     id: 4,
     name: 'Přírodní Košile',
-    price: '990 Kč',
+    price: 990,
     category: 'Košile',
     material: 'Bio bavlna',
     image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop',
@@ -37,7 +39,7 @@ const products = [
   {
     id: 5,
     name: 'Minimalistická Mikina',
-    price: '1290 Kč',
+    price: 1290,
     category: 'Mikiny',
     material: 'Organická bavlna',
     image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop',
@@ -45,7 +47,7 @@ const products = [
   {
     id: 6,
     name: 'Basic Top',
-    price: '490 Kč',
+    price: 490,
     category: 'Topy',
     material: 'Přírodní vlákna',
     image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1200&auto=format&fit=crop',
@@ -54,6 +56,12 @@ const products = [
 
 const Catalog = () => {
   const navigate = useNavigate();
+  const { addToCart, setIsCartOpen } = useCart();
+
+  const handleBuy = (product) => {
+  addToCart(product);
+  setIsCartOpen(true);
+};
 
   return (
     <div className="catalog-page">
@@ -110,9 +118,20 @@ const Catalog = () => {
                 <p className="catalog-material">{product.material}</p>
 
                 <div className="catalog-card-bottom">
-                  <span className="catalog-price">{product.price}</span>
-                  <button className="catalog-detail-btn">Detail</button>
-                </div>
+                <span className="catalog-price">{product.price} Kč</span>
+
+                <div className="catalog-actions">
+                <button className="catalog-detail-btn">Detail</button>
+               <button
+                 className="catalog-buy-btn"
+                 onClick={() => handleBuy(product)}
+               >
+                 Koupit
+               </button>
+                 </div>
+              </div>
+
+              
               </div>
             </div>
           ))}

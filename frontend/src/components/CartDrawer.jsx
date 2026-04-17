@@ -32,7 +32,7 @@ export default function CartDrawer() {
           <>
             <div style={styles.items}>
               {cartItems.map((item) => (
-                <div key={item._id} style={styles.item}>
+                <div key={item.id} style={styles.item}>
                   <img src={item.image} alt={item.name} style={styles.itemImage} />
 
                   <div style={styles.itemInfo}>
@@ -40,15 +40,15 @@ export default function CartDrawer() {
                     <p>{item.price} Kč</p>
 
                     <div style={styles.quantityRow}>
-                      <button onClick={() => decreaseQuantity(item._id)}>-</button>
+                      <button onClick={() => decreaseQuantity(item.id)}>-</button>
                       <span>{item.quantity}</span>
-                      <button onClick={() => increaseQuantity(item._id)}>+</button>
+                      <button onClick={() => increaseQuantity(item.id)}>+</button>
                     </div>
                   </div>
 
                   <button
                     style={styles.removeButton}
-                    onClick={() => removeFromCart(item._id)}
+                    onClick={() => removeFromCart(item.id)}
                   >
                     Odebrat
                   </button>
