@@ -24,7 +24,7 @@ const products = [
     price: '1490 Kč',
     category: 'Kalhoty',
     material: 'Len',
-    image: 'https://images.unsplash.com/photo-1506629905607-d9a317f0d4f8?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.pexels.com/photos/18160750/pexels-photo-18160750.jpeg?auto=compress&cs=tinysrgb&w=1200',
   },
   {
     id: 4,
