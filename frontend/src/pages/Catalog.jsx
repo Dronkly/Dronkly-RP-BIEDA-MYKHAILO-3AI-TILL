@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useCart } from '../context/CartContext';
 
+import Header from '../components/Header';
+
 const products = [
   {
     id: 1,
@@ -64,7 +66,11 @@ const Catalog = () => {
 };
 
   return (
+      <>
+      <Header />
+     
     <div className="catalog-page">
+       
       <div className="catalog-shell">
         <div className="catalog-header">
           <div>
@@ -131,14 +137,17 @@ const Catalog = () => {
                  </div>
               </div>
 
-              
+
               </div>
             </div>
           ))}
         </div>
       </div>
     </div>
+  </>
   );
 };
+
+
 
 export default Catalog;

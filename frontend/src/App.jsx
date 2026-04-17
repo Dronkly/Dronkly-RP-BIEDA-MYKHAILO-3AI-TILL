@@ -43,7 +43,7 @@ export default function App() {
 
     <BrowserRouter>
      <CartProvider>
-      <Header />
+      
       <CartDrawer />
       <Routes>
         {/* homepage */}
