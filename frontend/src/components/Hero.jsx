@@ -2,6 +2,7 @@ import heroImage from "../assets/images/hero.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { User } from "lucide-react";       
+import { motion } from "framer-motion";
 
 export default function Hero() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -65,27 +66,67 @@ export default function Hero() {
           </div>
         </nav>
 
+         <motion.div
+          className="hero-content"
+          initial={{ opacity: 0, y: 35 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.p
+            className="hero-eyebrow"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.6 }}
+          >
+            Eco fashion · moderní styl
+          </motion.p>
 
-        <div className="hero-content">
-          <h1>Oblečení, které dává smysl.</h1>
-          <p>Udržitelné materiály. Férová výroba. Styl bez kompromisů.</p>
-          <div className="hero-buttons">
-          <button onClick={() => navigate('/catalog')}>
-           Prohlédnout kolekci
-          </button>
+          <motion.h1
+            initial={{ opacity: 0, y: 35 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.75 }}
+          >
+            Oblečení, které dává smysl.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 35 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.75 }}
+          >
+            Udržitelné materiály. Férová výroba. Styl bez kompromisů.
+          </motion.p>
+
+          <motion.div
+            className="hero-buttons"
+            initial={{ opacity: 0, y: 35 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.75 }}
+          >
+             <button onClick={() => navigate('/catalog')}>
+                Prohlédnout kolekci
+             </button>
 
             <button
-            className="secondary"
-            onClick={() => document.getElementById('pribeh')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-             Zjistit více
-           </button>
+                className="secondary"
+                onClick={() =>
+                document.getElementById('pribeh')?.scrollIntoView({ behavior: 'smooth' })
+              }
+  >
+                 Zjistit více
+                  </button>
+            
+          </motion.div>
 
-           </div>
-        </div>
+      </motion.div>
       </div>
+  </section>
+
+       
+        
       
-    </section>
+      
+   
     
   );
 }
