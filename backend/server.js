@@ -8,6 +8,7 @@ dotenv.config();
 
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
+const productRoutes = require('./routes/product');
 
 
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/products', productRoutes);
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Ahoj z backendu! 👋' });

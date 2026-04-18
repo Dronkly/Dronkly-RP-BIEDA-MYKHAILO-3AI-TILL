@@ -446,14 +446,17 @@ h1, h2, h3 {
 }
 
 .profile-name {
-  font-weight: bold;
+  font-weight: 700;
+  color: #2f5d50;
   margin-bottom: 6px;
 }
 
 .dropdown-link {
+  display: block;
   color: #2f5d50;
   text-decoration: none;
   font-weight: 600;
+  padding: 8px 0;
 }
 
 .dropdown-logout {
@@ -1187,11 +1190,8 @@ body {
   align-items: center;
 }
 
-.nav-links a {
-  color: white;
-  font-weight: 600;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
+
+
 
 .nav-links a:hover {
   opacity: 0.8;

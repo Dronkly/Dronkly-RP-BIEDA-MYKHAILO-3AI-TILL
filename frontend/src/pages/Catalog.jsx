@@ -1,75 +1,44 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-import { useCart } from '../context/CartContext';
+
 
 import Header from '../components/Header';
+import { useCart } from '../context/CartContext';
 
-const products = [
-  {
-    id: 1,
-    name: 'Organic Tričko',
-    price: 590,
-    category: 'Trička',
-    material: 'Bio bavlna',
-    createdAt: '2026-03-28',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
-  },
-  {
-    id: 2,
-    name: 'Recyklovaná Mikina',
-    price: 1190,
-    category: 'Mikiny',
-    material: 'Recyklovaný materiál',
-    createdAt: '2026-04-10',
-    image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=1200&auto=format&fit=crop',
-  },
-  {
-    id: 3,
-    name: 'Lněné Kalhoty',
-    price: 1490,
-    category: 'Kalhoty',
-    material: 'Len',
-    createdAt: '2026-02-18',
-    image: 'https://images.pexels.com/photos/18160750/pexels-photo-18160750.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  },
-  {
-    id: 4,
-    name: 'Přírodní Košile',
-    price: 990,
-    category: 'Košile',
-    material: 'Bio bavlna',
-    createdAt: '2026-04-01',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop',
-  },
-  {
-    id: 5,
-    name: 'Minimalistická Mikina',
-    price: 1290,
-    category: 'Mikiny',
-    material: 'Organická bavlna',
-    createdAt: '2026-03-12',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop',
-  },
-  {
-    id: 6,
-    name: 'Basic Top',
-    price: 490,
-    category: 'Topy',
-    material: 'Přírodní vlákna',
-    createdAt: '2026-04-14',
-    image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1200&auto=format&fit=crop',
-  },
-];
+
 
 const Catalog = () => {
   const navigate = useNavigate();
   const { addToCart, setIsCartOpen } = useCart();
+
+  const [products, setProducts] = useState([]);
+const [loading, setLoading] = useState(true);
+
 const [searchTerm, setSearchTerm] = useState('');
 const [selectedCategory, setSelectedCategory] = useState('Všechny kategorie');
 const [sortBy, setSortBy] = useState('Nejnovější');
 
 const categories = ['Všechny kategorie', ...new Set(products.map((p) => p.category))];
+useEffect(() => {
+  fetchProducts();
+}, []);
+
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/products');
+    setProducts(response.data);
+  } catch (error) {
+    console.error('Chyba při načítání produktů:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchProducts();
+}, []);
 
 
   const handleBuy = (product) => {
@@ -99,7 +68,20 @@ const filteredProducts = useMemo(() => {
   }
 
   return result;
-}, [searchTerm, selectedCategory, sortBy]);
+}, [products, searchTerm, selectedCategory, sortBy]);
+
+if (loading) {
+  return (
+    <>
+      <Header />
+      <div className="catalog-page">
+        <div className="catalog-shell">
+          <p>Načítání produktů...</p>
+        </div>
+      </div>
+    </>
+  );
+}
 
   return (
       <>
@@ -160,7 +142,7 @@ const filteredProducts = useMemo(() => {
           </p>
         <div className="catalog-grid">
          {filteredProducts.map((product) => (
-            <div key={product.id} className="catalog-card">
+            <div key={product._id} className="catalog-card">
               <div className="catalog-image-wrap">
                 <img src={product.image} alt={product.name} />
               </div>
@@ -177,7 +159,12 @@ const filteredProducts = useMemo(() => {
                 <span className="catalog-price">{product.price} Kč</span>
 
                 <div className="catalog-actions">
-                <button className="catalog-detail-btn">Detail</button>
+                <button
+                  className="catalog-detail-btn"
+                  onClick={() => navigate(`/product/${product._id}`)}
+                >
+                   Detail
+               </button>
                <button
                  className="catalog-buy-btn"
                  onClick={() => handleBuy(product)}
