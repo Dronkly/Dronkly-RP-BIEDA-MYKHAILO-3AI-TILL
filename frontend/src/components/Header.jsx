@@ -35,7 +35,7 @@ const styles = {
     header: {
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'top',
+      alignItems: 'center',
       padding: '16px 24px',
       borderBottom: '1px solid #eee',
       position: 'sticky',
