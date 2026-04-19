@@ -1,21 +1,28 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiPackage } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const { totalItems, setIsCartOpen } = useCart();
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const showCart =
+  location.pathname === '/catalog' ||
+  location.pathname.startsWith('/product/');
+  
   return (
     <header style={styles.header}>
       {/* Levá část - katalog */}
-      <div style={styles.left}>
+      <div style={styles.left} onClick={() => navigate('/catalog')}>
         <FiPackage size={22} />
         <h2 style={styles.logo}>Katalog</h2>
       </div>
 
       {/* Pravá část - košík */}
       <div style={styles.right}>
-        {totalItems > 0 && (
+        {showCart && (
           <button
             style={styles.cartButton}
             onClick={() => setIsCartOpen(true)}
@@ -23,7 +30,9 @@ export default function Header() {
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
             <FiShoppingCart size={26} />
-            <span style={styles.badge}>{totalItems}</span>
+            {totalItems > 0 && (
+              <span style={styles.badge}>{totalItems}</span>
+              )}
           </button>
         )}
       </div>
@@ -49,7 +58,8 @@ const styles = {
       display: 'flex',
       alignItems: 'center',
       gap: '10px',
-    },
+      cursor: 'pointer',
+          },
   
     logo: {
       margin: 0,

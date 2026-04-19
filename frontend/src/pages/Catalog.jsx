@@ -36,10 +36,6 @@ const fetchProducts = async () => {
   }
 };
 
-useEffect(() => {
-  fetchProducts();
-}, []);
-
 
   const handleBuy = (product) => {
   addToCart(product);
@@ -68,7 +64,7 @@ const filteredProducts = useMemo(() => {
   }
 
   return result;
-}, [products, searchTerm, selectedCategory, sortBy]);
+        }, [products, searchTerm, selectedCategory, sortBy]);
 
 if (loading) {
   return (

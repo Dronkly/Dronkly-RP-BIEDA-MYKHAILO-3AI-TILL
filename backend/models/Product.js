@@ -50,6 +50,17 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    material: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

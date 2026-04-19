@@ -15,6 +15,8 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Catalog from "./pages/Catalog";
+import ProductDetail from "./pages/ProductDetail";
+
 import CartDrawer from "./components/CartDrawer";
 import Header from "./components/Header";
 
@@ -61,6 +63,9 @@ export default function App() {
 
         {/*O nas */}
         <Route path="/about" element={<About />} />
+
+         {/*Detail o produktu */}
+        <Route path="/product/:id" element={<ProductDetail />} />
 
 
                {/*Katalog pro nakupy */}
