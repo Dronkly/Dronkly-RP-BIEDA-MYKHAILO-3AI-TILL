@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import heroImage from '../assets/images/hero.png';
+import { Leaf, Globe, Shirt, ArrowLeft  } from "lucide-react";
+
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -20,234 +21,198 @@ const About = () => {
 
   return (
     <div className="about-page">
-      <section
-        className="about-hero"
-        style={{
-          backgroundImage: `linear-gradient(rgba(33, 52, 43, 0.45), rgba(33, 52, 43, 0.45)), url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        <div className="about-overlay">
-          <motion.div
-            className="about-hero-content"
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={0}
-          >
-            <p className="about-eyebrow">Náš příběh</p>
-            <h1>Začali jsme s jednoduchou myšlenkou</h1>
-            <p className="about-lead">
-              Vytvářet oblečení, které je pohodlné, nadčasové a zároveň šetrnější
-              k lidem i přírodě.
-            </p>
+    <section className="about-hero-clean">
+      <div className="about-hero-overlay-clean" />
+      <img
+        src="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600&auto=format&fit=crop"
+        alt="Móda"
+        className="about-hero-image-clean"
+      />
 
-            <div className="about-hero-buttons">
-              <button className="about-primary-btn" onClick={() => navigate('/')}>
-                Zpět na domů
-              </button>
-              <button className="about-secondary-btn" onClick={() => navigate('/profile')}>
-                Můj profil
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="about-section">
-        <div className="about-container about-grid">
-          <motion.div
-            className="about-text-card"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-            custom={0.1}
-          >
-            <h2>Jak to celé vzniklo</h2>
-            <p>
-              EkoModa vznikla z myšlenky, že móda nemusí být jen o vzhledu, ale i
-              o hodnotách. Na začátku byla jednoduchá otázka: proč je tak těžké
-              najít oblečení, které dobře vypadá, je příjemné na nošení a zároveň
-              vzniká z odpovědnějších materiálů?
-            </p>
-            <p>
-              Postupně jsme začali hledat lepší látky, jednodušší střihy a způsob,
-              jak tvořit kolekce, které nejsou jen krátkodobým trendem. Cílem bylo
-              vytvořit značku, která spojuje čistý styl, kvalitu a ohleduplnější
-              přístup k výrobě.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="about-quote-card"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-            custom={0.2}
-          >
-            <p className="about-quote">
-              „Nechceme vyrábět víc oblečení. Chceme vyrábět lepší oblečení.“
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="about-section soft-bg">
-        <div className="about-container">
-          <motion.div
-            className="about-section-heading"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-            custom={0.1}
-          >
-            <p className="about-eyebrow green">Na čem nám záleží</p>
-            <h2>Naše hodnoty</h2>
-          </motion.div>
-
-          <div className="about-values-grid">
-            <motion.div
-              className="about-value-card"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              custom={0.1}
-            >
-              <h3>Kvalita před kvantitou</h3>
-              <p>
-                Navrhujeme kousky, které vydrží déle a mají smysl i po několika sezónách.
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="about-value-card"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              custom={0.2}
-            >
-              <h3>Jednoduchost</h3>
-              <p>
-                Věříme v čistý design, pohodlí a nadčasový styl bez zbytečných
-                komplikací.
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="about-value-card"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              custom={0.3}
-            >
-              <h3>Ohleduplnější přístup</h3>
-              <p>
-                Hledáme lepší materiály a odpovědnější způsoby výroby, které mají
-                menší dopad na okolí.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <section className="about-section">
-        <div className="about-container about-timeline">
-          <motion.div
-            className="about-section-heading"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-            custom={0.1}
-          >
-            <p className="about-eyebrow green">Cesta značky</p>
-            <h2>Jak jsme rostli</h2>
-          </motion.div>
-
-          <motion.div
-            className="timeline-item"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            custom={0.1}
-          >
-            <span className="timeline-year">2023</span>
-            <div>
-              <h3>První návrhy</h3>
-              <p>
-                Začali jsme navrhovat první kolekci s důrazem na jednoduché střihy,
-                pohodlí a přirozené barvy.
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="timeline-item"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            custom={0.2}
-          >
-            <span className="timeline-year">2024</span>
-            <div>
-              <h3>Spuštění značky</h3>
-              <p>
-                Představili jsme první produkty a začali budovat komunitu lidí,
-                kterým záleží na stylu i smyslu.
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="timeline-item"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            custom={0.3}
-          >
-            <span className="timeline-year">2025</span>
-            <div>
-              <h3>Rozšíření nabídky</h3>
-              <p>
-                Do kolekce jsme přidali nové střihy, více základních kousků a lepší
-                zákaznickou zkušenost.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="about-cta-section">
-        <motion.div
-          className="about-cta-card"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          custom={0.1}
+      <div className="about-hero-content-clean">
+        <motion.p
+          className="about-label"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2>Chceš vidět naši kolekci?</h2>
-          <p>
-            Podívej se na produkty, které vznikly z myšlenky dělat módu o něco lépe.
-          </p>
-          <button className="about-primary-btn" onClick={() => navigate('/')}>
-            Zobrazit domovskou stránku
+          O značce
+        </motion.p>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1 }}
+        >
+          Náš příběh začal jednoduchou myšlenkou
+        </motion.h1>
+
+        <motion.p
+          className="about-hero-text-clean"
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+        >
+          Vytvářet oblečení, které dobře vypadá, pohodlně se nosí a zároveň
+          dává větší smysl. Věříme v jednoduchost, kvalitní materiály a styl,
+          který nepodléhá rychlým trendům.
+        </motion.p>
+
+        <motion.div
+          className="about-hero-actions-clean"
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+        >
+          <button className="about-main-btn" onClick={() => navigate("/catalog")}>
+            Prohlédnout kolekci
+          </button>
+          <button className="about-ghost-btn" onClick={() => navigate("/")}>
+            <ArrowLeft size={18} />
+            Zpět domů
           </button>
         </motion.div>
-      </section>
-    </div>
-  );
+      </div>
+    </section>
+
+    <section className="about-intro-section">
+      <div className="about-container-clean about-intro-grid">
+        <motion.div
+          className="about-intro-text"
+          initial={{ opacity: 0, x: -35 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <p className="about-label green">Jak to vzniklo</p>
+          <h2>Nechtěli jsme dělat jen další oblečení</h2>
+          <p>
+            EkoModa vznikla z potřeby spojit moderní vzhled, pohodlí a
+            odpovědnější přístup k módě. Od začátku jsme chtěli tvořit
+            kolekce, které nepůsobí přehnaně, ale přirozeně zapadnou do
+            každodenního života.
+          </p>
+          <p>
+            Zaměřujeme se na jednoduché střihy, čistý design a materiály,
+            které jsou příjemné na nošení. Naším cílem není zaplavit šatník
+            zbytečnými kusy, ale nabídnout oblečení, které má delší životnost
+            a nadčasový charakter.
+          </p>
+        </motion.div>
+
+        <motion.div
+          className="about-intro-image-wrap"
+          initial={{ opacity: 0, x: 35 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=1200&auto=format&fit=crop"
+            alt="Ateliér značky"
+            className="about-intro-image"
+          />
+        </motion.div>
+      </div>
+    </section>
+
+    <section className="about-values-section-clean">
+      <div className="about-container-clean">
+        <div className="about-values-head">
+          <p className="about-label green">Na čem nám záleží</p>
+          <h2>Hodnoty, na kterých stavíme</h2>
+        </div>
+
+        <div className="about-values-grid-clean">
+          <motion.div
+            className="about-value-card-clean"
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+          >
+            <div className="about-icon-box">
+              <Leaf size={24} />
+            </div>
+            <h3>Šetrnější materiály</h3>
+            <p>
+              Hledáme kvalitní materiály, které působí přirozeně, dobře se
+              nosí a dávají smysl i z dlouhodobého hlediska.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="about-value-card-clean"
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, delay: 0.1 }}
+          >
+            <div className="about-icon-box">
+              <Shirt size={24} />
+            </div>
+            <h3>Nadčasový styl</h3>
+            <p>
+              Navrhujeme kousky, které nepůsobí jen jako trend jedné sezóny,
+              ale dají se nosit opakovaně a snadno kombinovat.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="about-value-card-clean"
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, delay: 0.2 }}
+          >
+            <div className="about-icon-box">
+              <Globe size={24} />
+            </div>
+            <h3>Odpovědnější přístup</h3>
+            <p>
+              Přemýšlíme nad tím, jak módu tvořit s větším respektem k lidem,
+              výrobě i prostředí, ve kterém vzniká.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+
+    <section className="about-gallery-section-clean">
+      <div className="about-container-clean">
+        <div className="about-gallery-grid-clean">
+          <motion.img
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop"
+            alt="Styl 1"
+            className="about-gallery-item-clean tall"
+          />
+          <motion.img
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.08 }}
+            src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1200&auto=format&fit=crop"
+            alt="Styl 2"
+            className="about-gallery-item-clean"
+          />
+          <motion.img
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.16 }}
+            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop"
+            alt="Styl 3"
+            className="about-gallery-item-clean"
+          />
+        </div>
+      </div>
+    </section>
+  </div>
+);
 };
 
 export default About;
