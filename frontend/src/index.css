@@ -1856,3 +1856,170 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 26px;
+}
+
+.profile-panel {
+  background: #f8f5ef;
+  border: 1px solid #e6ddd2;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.06);
+}
+
+.profile-section-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2f5d50;
+  cursor: pointer;
+  padding: 0 0 14px 0;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #e7dfd4;
+}
+
+.profile-grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+.form-group input,
+.profile-select {
+  border: 1px solid #d9d1c7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: white;
+  outline: none;
+}
+
+.form-group input:focus,
+.profile-select:focus {
+  border-color: #2f5d50;
+  box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.08);
+}
+
+.payment-methods-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.payment-card-item {
+  background: white;
+  border: 1px solid #e7dfd4;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.payment-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.payment-card-number {
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #2f5d50;
+}
+
+.default-badge {
+  background: #e8f2ed;
+  color: #2f5d50;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.delete-card-btn {
+  margin-top: 12px;
+  background: #efefef;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.delete-card-btn:hover {
+  background: #e3e3e3;
+}
+
+.orders-list {
+  display: grid;
+  gap: 14px;
+}
+
+.order-card {
+  background: white;
+  border: 1px solid #e7dfd4;
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+.order-card summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #2f5d50;
+}
+
+.order-items {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  color: #4f4f4f;
+}
+
+.empty-text {
+  color: #7a7a7a;
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-grid-form {
+    grid-template-columns: 1fr;
+  }
+}

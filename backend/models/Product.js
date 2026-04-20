@@ -59,7 +59,7 @@ const productSchema = new mongoose.Schema(
 
     createdAt: {
       type: Date,
-      default: Date.apply(18.04),
+      default: Date.now,
     },
   },
   { timestamps: true }

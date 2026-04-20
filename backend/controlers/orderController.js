@@ -1,5 +1,18 @@
 const Order = require('../models/Order');
 
+const getOrdersByUserEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    const orders = await Order.find({ userEmail: email }).sort({ createdAt: -1 });
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('GET ORDERS ERROR:', error);
+    res.status(500).json({ message: 'Chyba při načítání objednávek.' });
+  }
+};
+ 
 const createOrder = async (req, res) => {
   try {
     const {
@@ -48,4 +61,4 @@ const createOrder = async (req, res) => {
   }
 };
 
-module.exports = { createOrder };
+module.exports = { createOrder, getOrdersByUserEmail };

@@ -2,12 +2,26 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const onlyDigits = (value) => value.replace(/\D/g, '');
+
+const formatCardNumber = (value) => {
+  const digits = onlyDigits(value).slice(0, 16);
+  return digits.replace(/(.{4})/g, '$1 ').trim();
+};
+
+
 const Profile = () => {
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [paymentMethods, setPaymentMethods] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [profileOpen, setProfileOpen] = useState(true);
+  const [paymentsOpen, setPaymentsOpen] = useState(true);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
   const navigate = useNavigate();
+
+
 
   const [formData, setFormData] = useState({
     name: '',
@@ -32,6 +46,8 @@ const Profile = () => {
   useEffect(() => {
     if (storedUser?.email) {
       fetchProfile();
+      fetchOrders();
+
     }
   }, []);
 
@@ -57,6 +73,15 @@ const Profile = () => {
     }
   };
 
+  const fetchOrders = async () => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/orders/user/${storedUser.email}`);
+    setOrders(response.data);
+  } catch (err) {
+    console.error('Chyba při načítání objednávek:', err);
+  }
+};
+
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -67,10 +92,24 @@ const Profile = () => {
 
   const handleCardChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setCardData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    let newValue = value;
+
+  if (name === 'cardNumber') {
+    newValue = formatCardNumber(value);
+  }
+
+  if (name === 'expiryMonth') {
+    newValue = onlyDigits(value).slice(0, 2);
+  }
+
+  if (name === 'expiryYear') {
+    newValue = onlyDigits(value).slice(0, 4);
+  }
+
+  setCardData((prev) => ({
+    ...prev,
+    [name]: type === 'checkbox' ? checked : newValue,
+  }));
   };
 
   const handleProfileSubmit = async (e) => {
@@ -95,6 +134,28 @@ const Profile = () => {
     e.preventDefault();
     setMessage('');
     setError('');
+    const rawCardNumber = onlyDigits(cardData.cardNumber);
+
+    if (!cardData.cardholderName.trim()) {
+      setError('Zadej jméno na kartě.');
+      return;
+    }
+
+    if (rawCardNumber.length !== 16) {
+      setError('Číslo karty musí mít 16 číslic.');
+      return;
+    }
+
+    const month = Number(cardData.expiryMonth);
+    if (!cardData.expiryMonth || month < 1 || month > 12) {
+      setError('Měsíc expirace musí být od 1 do 12.');
+      return;
+    }
+
+    if (!/^\d{4}$/.test(cardData.expiryYear)) {
+      setError('Rok expirace musí mít 4 číslice.');
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -119,6 +180,22 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteCard = async (methodId) => {
+  setMessage('');
+  setError('');
+
+  try {
+    const response = await axios.delete(
+      `http://localhost:5000/api/profile/${storedUser.email}/payment-methods/${methodId}`
+    );
+
+    setMessage(response.data.message);
+    fetchProfile();
+  } catch (err) {
+    setError(err.response?.data?.message || 'Nepodařilo se smazat kartu.');
+  }
+};
+
   if (!storedUser) {
     return (
       <div className="profile-page">
@@ -133,6 +210,17 @@ const Profile = () => {
   }
 
   const initials = `${formData.name?.[0] || ''}${formData.surname?.[0] || ''}`.toUpperCase();
+
+
+
+const activeOrders = orders.filter((order) =>
+  ['paid', 'processing', 'shipped'].includes(order.status)
+);
+
+const orderHistory = orders.filter((order) =>
+  ['delivered', 'cancelled'].includes(order.status)
+);
+
 
   return (
     
@@ -164,213 +252,293 @@ const Profile = () => {
 
           <div className="profile-layout">
             <section className="profile-panel">
-              <h2>Osobní údaje</h2>
+  <button
+    className="profile-section-toggle"
+    onClick={() => setProfileOpen(!profileOpen)}
+  >
+    <span>Osobní údaje</span>
+    <span>{profileOpen ? '−' : '+'}</span>
+  </button>
 
-              <form className="profile-grid-form" onSubmit={handleProfileSubmit}>
-                <div className="form-group">
-                  <label htmlFor="name">Jméno</label>
-                  <input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleProfileChange}
-                  />
-                </div>
+  {profileOpen && (
+    <form className="profile-grid-form" onSubmit={handleProfileSubmit}>
+      <div className="form-group">
+        <label htmlFor="name">Jméno</label>
+        <input
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleProfileChange}
+        />
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor="surname">Příjmení</label>
-                  <input
-                    id="surname"
-                    name="surname"
-                    value={formData.surname}
-                    onChange={handleProfileChange}
-                  />
-                </div>
+      <div className="form-group">
+        <label htmlFor="surname">Příjmení</label>
+        <input
+          id="surname"
+          name="surname"
+          value={formData.surname}
+          onChange={handleProfileChange}
+        />
+      </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="email">Email</label>
-                  <input id="email" value={storedUser.email} disabled />
-                </div>
+      <div className="form-group full-width">
+        <label htmlFor="email">Email</label>
+        <input id="email" value={storedUser.email} disabled />
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor="phone">Telefon</label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleProfileChange}
-                    placeholder="+420 123 456 789"
-                  />
-                </div>
+      <div className="form-group">
+        <label htmlFor="phone">Telefon</label>
+        <input
+          id="phone"
+          name="phone"
+          value={formData.phone}
+          onChange={handleProfileChange}
+          placeholder="+420 123 456 789"
+        />
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor="birthDate">Datum narození</label>
-                  <input
-                    id="birthDate"
-                    name="birthDate"
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={handleProfileChange}
-                  />
-                </div>
+      <div className="form-group">
+        <label htmlFor="birthDate">Datum narození</label>
+        <input
+          id="birthDate"
+          name="birthDate"
+          type="date"
+          value={formData.birthDate}
+          onChange={handleProfileChange}
+        />
+      </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="street">Ulice a číslo</label>
-                  <input
-                    id="street"
-                    name="street"
-                    value={formData.street}
-                    onChange={handleProfileChange}
-                    placeholder="Např. Zelená 15"
-                  />
-                </div>
+      <div className="form-group full-width">
+        <label htmlFor="street">Ulice a číslo</label>
+        <input
+          id="street"
+          name="street"
+          value={formData.street}
+          onChange={handleProfileChange}
+          placeholder="Např. Zelená 15"
+        />
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor="city">Město</label>
-                  <input
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleProfileChange}
-                  />
-                </div>
+      <div className="form-group">
+        <label htmlFor="city">Město</label>
+        <input
+          id="city"
+          name="city"
+          value={formData.city}
+          onChange={handleProfileChange}
+        />
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor="zipCode">PSČ</label>
-                  <input
-                    id="zipCode"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleProfileChange}
-                  />
-                </div>
+      <div className="form-group">
+        <label htmlFor="zipCode">PSČ</label>
+        <input
+          id="zipCode"
+          name="zipCode"
+          value={formData.zipCode}
+          onChange={handleProfileChange}
+        />
+      </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="country">Země</label>
-                  <input
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleProfileChange}
-                  />
-                </div>
+      <div className="form-group full-width">
+        <label htmlFor="country">Země</label>
+        <input
+          id="country"
+          name="country"
+          value={formData.country}
+          onChange={handleProfileChange}
+        />
+      </div>
 
-                <div className="full-width">
-                  <button type="submit" className="profile-action-btn">
-                    Uložit profil
-                  </button>
-                </div>
-              </form>
-            </section>
+      <div className="full-width">
+        <button type="submit" className="profile-action-btn">
+          Uložit profil
+        </button>
+      </div>
+    </form>
+  )}
+</section>
 
-            <section className="profile-panel">
-              <h2>Platební metody</h2>
+  <section className="profile-panel">
+  <button
+    className="profile-section-toggle"
+    onClick={() => setPaymentsOpen(!paymentsOpen)}
+  >
+    <span>Platební metody</span>
+    <span>{paymentsOpen ? '−' : '+'}</span>
+  </button>
 
-              <form className="profile-grid-form" onSubmit={handleAddCard}>
-                <div className="form-group full-width">
-                  <label htmlFor="cardholderName">Jméno na kartě</label>
-                  <input
-                    id="cardholderName"
-                    name="cardholderName"
-                    value={cardData.cardholderName}
-                    onChange={handleCardChange}
-                    required
-                  />
-                </div>
+  {paymentsOpen && (
+    <>
+      <form className="profile-grid-form" onSubmit={handleAddCard}>
+        <div className="form-group full-width">
+          <label htmlFor="cardholderName">Jméno na kartě</label>
+          <input
+            id="cardholderName"
+            name="cardholderName"
+            value={cardData.cardholderName}
+            onChange={handleCardChange}
+            required
+          />
+        </div>
 
-                <div className="form-group">
-                  <label htmlFor="cardBrand">Značka karty</label>
-                  <select
-                    id="cardBrand"
-                    name="cardBrand"
-                    value={cardData.cardBrand}
-                    onChange={handleCardChange}
-                    className="profile-select"
-                  >
-                    <option>Visa</option>
-                    <option>Mastercard</option>
-                    <option>Maestro</option>
-                    <option>JCB</option>
-                    <option>American Express</option>
-                    <option>Jiná</option>
-                  </select>
-                </div>
+        <div className="form-group">
+          <label htmlFor="cardBrand">Značka karty</label>
+          <select
+            id="cardBrand"
+            name="cardBrand"
+            value={cardData.cardBrand}
+            onChange={handleCardChange}
+            className="profile-select"
+          >
+            <option>Visa</option>
+            <option>Mastercard</option>
+            <option>Maestro</option>
+            <option>JCB</option>
+            <option>American Express</option>
+            <option>Jiná</option>
+          </select>
+        </div>
 
-                <div className="form-group">
-                  <label htmlFor="cardNumber">Číslo karty</label>
-                  <input
-                    id="cardNumber"
-                    name="cardNumber"
-                    value={cardData.cardNumber}
-                    onChange={handleCardChange}
-                    placeholder="1234 5678 9012 3456"
-                    required
-                  />
-                </div>
+        <div className="form-group">
+          <label htmlFor="cardNumber">Číslo karty</label>
+          <input
+            id="cardNumber"
+            name="cardNumber"
+            value={cardData.cardNumber}
+            onChange={handleCardChange}
+            placeholder="1234 5678 9012 3456"
+            required
+          />
+        </div>
 
-                <div className="form-group">
-                  <label htmlFor="expiryMonth">Měsíc expirace</label>
-                  <input
-                    id="expiryMonth"
-                    name="expiryMonth"
-                    value={cardData.expiryMonth}
-                    onChange={handleCardChange}
-                    placeholder="MM"
-                    required
-                  />
-                </div>
+        <div className="form-group">
+          <label htmlFor="expiryMonth">Měsíc expirace</label>
+          <input
+            id="expiryMonth"
+            name="expiryMonth"
+            value={cardData.expiryMonth}
+            onChange={handleCardChange}
+            placeholder="MM"
+            required
+          />
+        </div>
 
-                <div className="form-group">
-                  <label htmlFor="expiryYear">Rok expirace</label>
-                  <input
-                    id="expiryYear"
-                    name="expiryYear"
-                    value={cardData.expiryYear}
-                    onChange={handleCardChange}
-                    placeholder="YYYY"
-                    required
-                  />
-                </div>
+        <div className="form-group">
+          <label htmlFor="expiryYear">Rok expirace</label>
+          <input
+            id="expiryYear"
+            name="expiryYear"
+            value={cardData.expiryYear}
+            onChange={handleCardChange}
+            placeholder="YYYY"
+            required
+          />
+        </div>
 
-                <div className="form-group full-width">
-                  <label className="checkbox-row">
-                    <input
-                      type="checkbox"
-                      name="isDefault"
-                      checked={cardData.isDefault}
-                      onChange={handleCardChange}
-                    />
-                    Nastavit jako výchozí
-                  </label>
-                </div>
+        <div className="form-group full-width">
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              name="isDefault"
+              checked={cardData.isDefault}
+              onChange={handleCardChange}
+            />
+            Nastavit jako výchozí
+          </label>
+        </div>
 
-                <div className="full-width">
-                  <button type="submit" className="profile-action-btn">
-                    Přidat kartu
-                  </button>
-                </div>
-              </form>
+        <div className="full-width">
+          <button type="submit" className="profile-action-btn">
+            Přidat kartu
+          </button>
+        </div>
+      </form>
 
-              <div className="payment-methods-list">
-                {paymentMethods.length === 0 ? (
-                  <p className="empty-text">Zatím nemáš žádnou uloženou kartu.</p>
-                ) : (
-                  paymentMethods.map((card) => (
-                    <div key={card._id} className="payment-card-item">
-                      <div className="payment-card-top">
-                        <strong>{card.cardBrand}</strong>
-                        {card.isDefault && <span className="default-badge">Výchozí</span>}
-                      </div>
-
-                      <p className="payment-card-number">•••• •••• •••• {card.last4}</p>
-                      <p>{card.cardholderName}</p>
-                      <p>Expirace: {card.expiryMonth}/{card.expiryYear}</p>
-                    </div>
-                  ))
-                )}
+      <div className="payment-methods-list">
+        {paymentMethods.length === 0 ? (
+          <p className="empty-text">Zatím nemáš žádnou uloženou kartu.</p>
+        ) : (
+          paymentMethods.map((card) => (
+            <div key={card._id} className="payment-card-item">
+              <div className="payment-card-top">
+                <strong>{card.cardBrand}</strong>
+                {card.isDefault && <span className="default-badge">Výchozí</span>}
               </div>
-            </section>
-          </div>
+
+              <p className="payment-card-number">•••• •••• •••• {card.last4}</p>
+              <p>{card.cardholderName}</p>
+              <p>Expirace: {card.expiryMonth}/{card.expiryYear}</p>
+
+              <button
+                type="button"
+                className="delete-card-btn"
+                onClick={() => handleDeleteCard(card._id)}
+              >
+                Smazat
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  )}
+</section>
+
+  <section className="profile-panel">
+    <h2>Aktivní objednávky</h2>
+
+    {activeOrders.length === 0 ? (
+      <p className="empty-text">Nemáš žádné aktivní objednávky.</p>
+    ) : (
+      <div className="orders-list">
+        {activeOrders.map((order) => (
+          <details key={order._id} className="order-card">
+            <summary>
+              Objednávka z {new Date(order.createdAt).toLocaleDateString('cs-CZ')} • {order.status} • {order.totalPrice} Kč
+            </summary>
+
+            <div className="order-items">
+              {order.items.map((item, index) => (
+                <div key={index} className="order-item-row">
+                  <span>{item.name} × {item.quantity}</span>
+                  <span>{item.price * item.quantity} Kč</span>
+                </div>
+              ))}
+            </div>
+          </details>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <section className="profile-panel">
+    <h2>Historie objednávek</h2>
+
+    {orderHistory.length === 0 ? (
+      <p className="empty-text">Zatím nemáš žádnou historii objednávek.</p>
+    ) : (
+      <div className="orders-list">
+        {orderHistory.map((order) => (
+          <details key={order._id} className="order-card">
+            <summary>
+              Objednávka z {new Date(order.createdAt).toLocaleDateString('cs-CZ')} • {order.status} • {order.totalPrice} Kč
+            </summary>
+
+            <div className="order-items">
+              {order.items.map((item, index) => (
+                <div key={index} className="order-item-row">
+                  <span>{item.name} × {item.quantity}</span>
+                  <span>{item.price * item.quantity} Kč</span>
+                </div>
+              ))}
+            </div>
+          </details>
+        ))}
+      </div>
+    )}
+  </section>
+</div>
         </div>
       </div>
     </div>

@@ -5,6 +5,20 @@ import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
 const Checkout = () => {
+    const onlyDigits = (value) => value.replace(/\D/g, '');
+
+    const formatCardNumber = (value) => {
+          const digits = onlyDigits(value).slice(0, 16);
+         return digits.replace(/(.{4})/g, '$1 ').trim();
+         };
+
+   const isValidEmail = (email) => {
+   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+   };
+
+  const isValidPhone = (phone) => {
+  return /^\+?[0-9\s]{9,15}$/.test(phone);
+  };
   const navigate = useNavigate();
   const { cartItems, totalPrice, clearCart } = useCart();
 
@@ -44,10 +58,33 @@ const Checkout = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
+  const { name, value } = e.target;
+
+  let newValue = value;
+
+  if (name === 'cardNumber') {
+    newValue = formatCardNumber(value);
+  }
+
+  if (name === 'expiryMonth') {
+    newValue = onlyDigits(value).slice(0, 2);
+  }
+
+  if (name === 'expiryYear') {
+    newValue = onlyDigits(value).slice(0, 4);
+  }
+
+  if (name === 'phone') {
+    newValue = value.replace(/[^0-9+\s]/g, '').slice(0, 15);
+  }
+
+  if (name === 'zipCode') {
+    newValue = value.replace(/[^\d\s]/g, '').slice(0, 6);
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: newValue,
     }));
   };
 
@@ -60,7 +97,50 @@ const Checkout = () => {
       setError('Košík je prázdný.');
       return;
     }
+  if (!isValidEmail(formData.email)) {
+    setError('Zadej platný email.');
+    return;
+    } 
 
+if (!isValidPhone(formData.phone)) {
+    setError('Zadej platné telefonní číslo.');
+    return;
+   }
+
+if (!formData.street || !formData.city || !formData.zipCode || !formData.country) {
+    setError('Vyplň celou adresu.');
+    return;
+   }
+
+if (paymentMethods.length > 0 && !selectedPaymentMethod) {
+    setError('Vyber platební metodu.');
+    return;
+  }
+
+  if (paymentMethods.length === 0) {
+   const rawCardNumber = onlyDigits(formData.cardNumber);
+
+  if (!formData.cardholderName.trim()) {
+    setError('Zadej jméno na kartě.');
+    return;
+  }
+
+  if (rawCardNumber.length !== 16) {
+    setError('Číslo karty musí mít 16 číslic.');
+    return;
+  }
+
+  const month = Number(formData.expiryMonth);
+  if (!formData.expiryMonth || month < 1 || month > 12) {
+    setError('Měsíc expirace musí být od 1 do 12.');
+    return;
+  }
+
+  if (!/^\d{4}$/.test(formData.expiryYear)) {
+    setError('Rok expirace musí mít 4 číslice.');
+    return;
+  }
+}
     try {
       const payload = {
         userEmail: storedUser?.email || '',
@@ -81,7 +161,7 @@ const Checkout = () => {
           paymentMethods.length === 0
             ? {
                 cardholderName: formData.cardholderName,
-                cardLast4: formData.cardNumber.slice(-4),
+                cardLast4: onlyDigits(formData.cardNumber).slice(-4),
                 expiryMonth: formData.expiryMonth,
                 expiryYear: formData.expiryYear,
               }

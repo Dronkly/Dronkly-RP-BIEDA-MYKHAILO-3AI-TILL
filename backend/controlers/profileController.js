@@ -99,8 +99,35 @@ const addPaymentMethod = async (req, res) => {
   }
 };
 
+const deletePaymentMethod = async (req, res) => {
+  try {
+    const { email, methodId } = req.params;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Uživatel nebyl nalezen.' });
+    }
+
+    const deletedMethod = await PaymentMethod.findOneAndDelete({
+      _id: methodId,
+      userId: user._id,
+    });
+
+    if (!deletedMethod) {
+      return res.status(404).json({ message: 'Platební metoda nebyla nalezena.' });
+    }
+
+    res.status(200).json({ message: 'Platební metoda byla smazána.' });
+  } catch (error) {
+    console.error('DELETE PAYMENT METHOD ERROR:', error);
+    res.status(500).json({ message: 'Chyba při mazání platební metody.' });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   addPaymentMethod,
+  deletePaymentMethod
 };
