@@ -34,6 +34,10 @@ export function CartProvider({ children }) {
     setCartItems((prev) => prev.filter((item) => item._id !== productId));
   };
 
+  const clearCart = () => {
+  setCartItems([]);
+};
+
   const increaseQuantity = (productId) => {
     setCartItems((prev) =>
       prev.map((item) =>
