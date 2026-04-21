@@ -17,6 +17,7 @@ import About from "./pages/About";
 import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
+import AdminPanel from "./pages/AdminPanel";
 
 import CartDrawer from "./components/CartDrawer";
 import Header from "./components/Header";
@@ -74,6 +75,11 @@ export default function App() {
 
                {/*Katalog pro nakupy */}
         <Route path="/catalog" element={<Catalog />} />
+
+          {/*Admin panel */}
+        <Route path="/admin" element={<AdminPanel />} />
+
+        
       </Routes>
       </CartProvider>
       </BrowserRouter>

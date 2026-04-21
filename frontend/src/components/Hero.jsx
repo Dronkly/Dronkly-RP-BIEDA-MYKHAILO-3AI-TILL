@@ -56,6 +56,11 @@ export default function Hero() {
                     <Link to="/profile" className="dropdown-link">
                       Můj profil
                     </Link>
+                    {user?.role === 'admin' && (
+                     <Link to="/admin" className="dropdown-link">
+                      Admin panel
+                     </Link>
+                    )}
                     <button className="dropdown-logout" onClick={handleLogout}>
                       Odhlásit se
                     </button>
