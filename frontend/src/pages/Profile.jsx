@@ -2,6 +2,49 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const countryOptions = [
+  'Česká republika',
+  'Slovensko',
+  'Německo',
+  'Rakousko',
+  'Polsko'
+];
+
+
+const formatCity = (value) =>
+  value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '');
+
+const formatStreet = (value) =>
+  value
+    .replace(/[^a-zA-Z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s.,/\-]/g, '')
+    .slice(0, 80);
+
+const formatZipCode = (value) => {
+  const digits = value.replace(/\D/g, '').slice(0, 5);
+  return digits.length > 3
+    ? `${digits.slice(0, 3)} ${digits.slice(3)}`
+    : digits;
+};
+
+const formatCountry = (value) =>
+  value
+    .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '')
+    .slice(0, 40);
+
+const isValidCity = (value) =>
+  /^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(value);
+
+const isValidZipCode = (value) => /^\d{3}\s?\d{2}$/.test(value);
+
+const isValidCountry = (value) =>
+  countryOptions.some(
+    (country) => country.toLowerCase() === value.trim().toLowerCase()
+  );
+
+const isValidPhone = (value) => /^\+?[0-9\s]{9,15}$/.test(value);
+
+
+
 const onlyDigits = (value) => value.replace(/\D/g, '');
 
 const formatCardNumber = (value) => {
@@ -84,15 +127,43 @@ const Profile = () => {
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    let newValue = value;
+
+  if (name === 'city') {
+    newValue = formatCity(value);
+  }
+
+  if (name === 'street') {
+    newValue = formatStreet(value);
+  }
+
+  if (name === 'zipCode') {
+    newValue = formatZipCode(value);
+  }
+
+   if (name === 'country') {
+    newValue = formatCountry(value);
+  }
+
+  if (name === 'phone') {
+    newValue = value.replace(/[^0-9+\s]/g, '').slice(0, 15);
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: newValue,
+  }));
   };
 
   const handleCardChange = (e) => {
     const { name, value, type, checked } = e.target;
     let newValue = value;
+
+   if (name === 'cardholderName') {
+    newValue = value
+      .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '')
+      .slice(0, 50);
+  }
 
   if (name === 'cardNumber') {
     newValue = formatCardNumber(value);
@@ -106,6 +177,8 @@ const Profile = () => {
     newValue = onlyDigits(value).slice(0, 4);
   }
 
+
+
   setCardData((prev) => ({
     ...prev,
     [name]: type === 'checkbox' ? checked : newValue,
@@ -116,6 +189,25 @@ const Profile = () => {
     e.preventDefault();
     setMessage('');
     setError('');
+    if (formData.phone && !isValidPhone(formData.phone)) {
+      setError('Zadej platné telefonní číslo.');
+      return;
+    }
+
+  if (formData.city && !isValidCity(formData.city)) {
+    setError('Zadej platné město.');
+    return;
+    }
+
+  if (formData.zipCode && !isValidZipCode(formData.zipCode)) {
+    setError('PSČ musí být ve formátu 123 45.');
+    return;
+    }
+
+  if (formData.country && !isValidCountry(formData.country)) {
+    setError('Vyber platnou zemi z nabídky.');
+    return;
+    }
 
     try {
       const response = await axios.put(
@@ -140,6 +232,15 @@ const Profile = () => {
       setError('Zadej jméno na kartě.');
       return;
     }
+
+    if (
+      !/^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(
+      cardData.cardholderName.trim()
+      )
+    ) {
+  setError('Jméno na kartě obsahuje neplatné znaky.');
+  return;
+}
 
     if (rawCardNumber.length !== 16) {
       setError('Číslo karty musí mít 16 číslic.');
@@ -343,11 +444,18 @@ const orderHistory = orders.filter((order) =>
       <div className="form-group full-width">
         <label htmlFor="country">Země</label>
         <input
-          id="country"
-          name="country"
-          value={formData.country}
-          onChange={handleProfileChange}
-        />
+           id="country"
+           name="country"
+           value={formData.country}
+           onChange={handleProfileChange}
+          list="country-options"
+         />
+
+         <datalist id="country-options">
+          {countryOptions.map((country) => (
+          <option key={country} value={country} />
+         ))}
+         </datalist>
       </div>
 
       <div className="full-width">
@@ -495,7 +603,13 @@ const orderHistory = orders.filter((order) =>
         {activeOrders.map((order) => (
           <details key={order._id} className="order-card">
             <summary>
-              Objednávka z {new Date(order.createdAt).toLocaleDateString('cs-CZ')} • {order.status} • {order.totalPrice} Kč
+             Objednávka z {new Date(order.createdAt).toLocaleString('cs-CZ', {
+             day: 'numeric',
+             month: 'numeric',
+             year: 'numeric',
+             hour: '2-digit',
+             minute: '2-digit'
+              })} • {order.status} • {order.totalPrice} Kč
             </summary>
 
             <div className="order-items">
@@ -521,9 +635,15 @@ const orderHistory = orders.filter((order) =>
       <div className="orders-list">
         {orderHistory.map((order) => (
           <details key={order._id} className="order-card">
-            <summary>
-              Objednávka z {new Date(order.createdAt).toLocaleDateString('cs-CZ')} • {order.status} • {order.totalPrice} Kč
-            </summary>
+          <summary>
+            Objednávka z {new Date(order.createdAt).toLocaleString('cs-CZ', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+           minute: '2-digit'
+           })} • {order.status} • {order.totalPrice} Kč
+         </summary>
 
             <div className="order-items">
               {order.items.map((item, index) => (

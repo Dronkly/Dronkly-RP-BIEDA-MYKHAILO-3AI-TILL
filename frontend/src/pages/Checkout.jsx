@@ -4,21 +4,51 @@ import Header from '../components/Header';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
+const countryOptions = [
+  'Česká republika',
+  'Slovensko',
+  'Německo',
+  'Rakousko',
+  'Polsko'
+];
+
+const onlyDigits = (value) => value.replace(/\D/g, '');
+
+const formatCardNumber = (value) => {
+  const digits = onlyDigits(value).slice(0, 16);
+  return digits.replace(/(.{4})/g, '$1 ').trim();
+};
+
+
+const formatCity = (value) =>
+  value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '');
+
+const formatStreet = (value) =>
+  value
+    .replace(/[^a-zA-Z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s.,/\-]/g, '')
+    .slice(0, 80);
+
+const formatZipCode = (value) => {
+  const digits = value.replace(/\D/g, '').slice(0, 5);
+  return digits.length > 3
+    ? `${digits.slice(0, 3)} ${digits.slice(3)}`
+    : digits;
+};
+
+const formatCountry = (value) =>
+  value
+    .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '')
+    .slice(0, 40);
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidPhone = (phone) => /^\+?[0-9\s]{9,15}$/.test(phone);
+const isValidCity = (value) =>
+  /^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(value);
+const isValidZipCode = (value) => /^\d{3}\s?\d{2}$/.test(value);
+const isValidCountry = (value) =>
+  countryOptions.some((country) => country.toLowerCase() === value.trim().toLowerCase());
+
 const Checkout = () => {
-    const onlyDigits = (value) => value.replace(/\D/g, '');
-
-    const formatCardNumber = (value) => {
-          const digits = onlyDigits(value).slice(0, 16);
-         return digits.replace(/(.{4})/g, '$1 ').trim();
-         };
-
-   const isValidEmail = (email) => {
-   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-   };
-
-  const isValidPhone = (phone) => {
-  return /^\+?[0-9\s]{9,15}$/.test(phone);
-  };
   const navigate = useNavigate();
   const { cartItems, totalPrice, clearCart } = useCart();
 
@@ -62,55 +92,79 @@ const Checkout = () => {
 
   let newValue = value;
 
-  if (name === 'cardNumber') {
-    newValue = formatCardNumber(value);
-  }
+   if (name === 'cardholderName') {
+    newValue = value
+      .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '')
+      .slice(0, 50);
+   }
 
-  if (name === 'expiryMonth') {
-    newValue = onlyDigits(value).slice(0, 2);
-  }
 
-  if (name === 'expiryYear') {
-    newValue = onlyDigits(value).slice(0, 4);
-  }
+    if (name === 'cardNumber') {
+      newValue = formatCardNumber(value);
+    }
 
-  if (name === 'phone') {
-    newValue = value.replace(/[^0-9+\s]/g, '').slice(0, 15);
-  }
+    if (name === 'expiryMonth') {
+      newValue = onlyDigits(value).slice(0, 2);
+    }
 
-  if (name === 'zipCode') {
-    newValue = value.replace(/[^\d\s]/g, '').slice(0, 6);
-  }
+    if (name === 'expiryYear') {
+      newValue = onlyDigits(value).slice(0, 4);
+    }
+
+    if (name === 'phone') {
+      newValue = value.replace(/[^0-9+\s]/g, '').slice(0, 15);
+    }
+
+    if (name === 'zipCode') {
+      newValue = formatZipCode(value);
+    }
+
+    if (name === 'city') {
+      newValue = formatCity(value);
+    }
+
+    if (name === 'street') {
+      newValue = formatStreet(value);
+    }
+
+    if (name === 'country') {
+      newValue = formatCountry(value);
+    }
 
   setFormData((prev) => ({
     ...prev,
     [name]: newValue,
-    }));
+  }));
   };
+  
+
 
   const handleCheckout = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
 
+    if (!isValidEmail(formData.email)) {
+      setError('Zadej platný email.');
+      return;
+    }
+
+    if (!isValidPhone(formData.phone)) {
+      setError('Zadej platné telefonní číslo.');
+      return;
+    }
+
+    if (!formData.street || !formData.city || !formData.zipCode || !formData.country) {
+      setError('Vyplň celou adresu.');
+      return;
+    }
+
+
     if (cartItems.length === 0) {
       setError('Košík je prázdný.');
       return;
     }
-  if (!isValidEmail(formData.email)) {
-    setError('Zadej platný email.');
-    return;
-    } 
-
-if (!isValidPhone(formData.phone)) {
-    setError('Zadej platné telefonní číslo.');
-    return;
-   }
-
-if (!formData.street || !formData.city || !formData.zipCode || !formData.country) {
-    setError('Vyplň celou adresu.');
-    return;
-   }
+ 
 
 if (paymentMethods.length > 0 && !selectedPaymentMethod) {
     setError('Vyber platební metodu.');
@@ -118,12 +172,19 @@ if (paymentMethods.length > 0 && !selectedPaymentMethod) {
   }
 
   if (paymentMethods.length === 0) {
+
+    
    const rawCardNumber = onlyDigits(formData.cardNumber);
 
   if (!formData.cardholderName.trim()) {
     setError('Zadej jméno na kartě.');
     return;
   }
+
+  if (!/^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(formData.cardholderName.trim())) {
+  setError('Jméno na kartě obsahuje neplatné znaky.');
+  return;
+    }
 
   if (rawCardNumber.length !== 16) {
     setError('Číslo karty musí mít 16 číslic.');
@@ -140,6 +201,19 @@ if (paymentMethods.length > 0 && !selectedPaymentMethod) {
     setError('Rok expirace musí mít 4 číslice.');
     return;
   }
+}  if (!isValidCity(formData.city)) {
+  setError('Zadej platné město.');
+  return;
+}
+
+if (!isValidZipCode(formData.zipCode)) {
+  setError('PSČ musí být ve formátu 123 45.');
+  return;
+}
+
+if (!isValidCountry(formData.country)) {
+  setError('Vyber platnou zemi z nabídky.');
+  return;
 }
     try {
       const payload = {
@@ -247,11 +321,18 @@ if (paymentMethods.length > 0 && !selectedPaymentMethod) {
 
                 <label>Země</label>
                 <input
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  required
-                />
+                   name="country"
+                   value={formData.country}
+                   onChange={handleChange}
+                   list="countries"
+                   required
+                   />
+
+                <datalist id="countries">
+                  {countryOptions.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+               </datalist>
               </div>
 
               <div className="checkout-section">

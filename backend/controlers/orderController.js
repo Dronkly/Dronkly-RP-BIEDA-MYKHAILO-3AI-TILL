@@ -5,6 +5,7 @@ const getOrdersByUserEmail = async (req, res) => {
     const { email } = req.params;
 
     const orders = await Order.find({ userEmail: email }).sort({ createdAt: -1 });
+    
 
     res.status(200).json(orders);
   } catch (error) {
@@ -15,6 +16,7 @@ const getOrdersByUserEmail = async (req, res) => {
  
 const createOrder = async (req, res) => {
   try {
+    const sendOrderEmail = require('../utils/sendEmail');
     const {
       userEmail,
       items,
@@ -50,6 +52,7 @@ const createOrder = async (req, res) => {
       address,
       status: 'paid',
     });
+    await sendOrderEmail(contact.email, order);
 
     res.status(201).json({
       message: 'Objednávka byla úspěšně zaplacena.',
@@ -60,5 +63,7 @@ const createOrder = async (req, res) => {
     res.status(500).json({ message: 'Chyba při vytváření objednávky.' });
   }
 };
+
+
 
 module.exports = { createOrder, getOrdersByUserEmail };
