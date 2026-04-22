@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
 
+const sendOrderStatusEmail = require('../utils/sendOrderStatusEmail');
+
 const getOrdersByUserEmail = async (req, res) => {
   try {
     const { email } = req.params;
@@ -11,6 +13,16 @@ const getOrdersByUserEmail = async (req, res) => {
   } catch (error) {
     console.error('GET ORDERS ERROR:', error);
     res.status(500).json({ message: 'Chyba při načítání objednávek.' });
+  }
+};
+
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('GET ALL ORDERS ERROR:', error);
+    res.status(500).json({ message: 'Chyba při načítání všech objednávek.' });
   }
 };
  
@@ -65,5 +77,49 @@ const createOrder = async (req, res) => {
 };
 
 
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      status,
+      deliveryEstimateDays,
+      deliveryWindowStart,
+      deliveryWindowEnd,
+      sendEmail,
+    } = req.body;
 
-module.exports = { createOrder, getOrdersByUserEmail };
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Objednávka nebyla nalezena.' });
+    }
+
+    order.status = status;
+    order.deliveryEstimateDays = deliveryEstimateDays || null;
+    order.deliveryWindowStart = deliveryWindowStart || '';
+    order.deliveryWindowEnd = deliveryWindowEnd || '';
+
+    await order.save();
+
+    if (sendEmail && order.contact?.email) {
+      await sendOrderStatusEmail(order.contact.email, order);
+    }
+
+    res.status(200).json({
+      message: 'Stav objednávky byl upraven.',
+      order,
+    });
+  } catch (error) {
+    console.error('UPDATE ORDER STATUS ERROR:', error);
+    res.status(500).json({ message: 'Chyba při úpravě stavu objednávky.' });
+  }
+};
+
+
+
+module.exports = {
+  createOrder,
+  getOrdersByUserEmail,
+  getAllOrders,
+  updateOrderStatus,
+};

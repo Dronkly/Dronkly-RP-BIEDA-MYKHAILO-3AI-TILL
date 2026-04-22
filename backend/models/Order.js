@@ -40,7 +40,23 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      enum: ['paid', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'],
       default: 'paid',
+    },
+
+    deliveryEstimateDays: {
+      type: Number,
+      default: null,
+    },
+
+    deliveryWindowStart: {
+      type: String,
+      default: '',
+    },
+
+    deliveryWindowEnd: {
+      type: String,
+      default: '',
     },
   },
   { timestamps: true }

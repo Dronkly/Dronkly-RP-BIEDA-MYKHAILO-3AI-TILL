@@ -13,6 +13,15 @@ const emptyForm = {
   stock: '',
 };
 
+const statusLabels = {
+  paid: 'Zaplaceno',
+  processing: 'Připravujeme',
+  shipped: 'Na cestě',
+  out_for_delivery: 'Doručujeme dnes',
+  delivered: 'Doručeno',
+  cancelled: 'Zrušeno',
+};
+
 const AdminPanel = () => {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -20,6 +29,8 @@ const AdminPanel = () => {
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [statusForm, setStatusForm] = useState({});
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -30,7 +41,18 @@ const AdminPanel = () => {
     }
 
     fetchProducts();
+    fetchOrders();
   }, []);
+
+  const fetchOrders = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/orders/admin/all');
+    setOrders(response.data);
+  } catch (err) {
+    console.error(err);
+    setError('Nepodařilo se načíst objednávky.');
+  }
+};
 
   const fetchProducts = async () => {
     try {
@@ -123,6 +145,47 @@ const AdminPanel = () => {
     }
   };
 
+  const handleStatusChange = (orderId, field, value) => {
+  setStatusForm((prev) => ({
+    ...prev,
+    [orderId]: {
+      ...(prev[orderId] || {}),
+      [field]: value,
+    },
+  }));
+};
+
+const handleUpdateOrderStatus = async (orderId) => {
+  setMessage('');
+  setError('');
+
+  try {
+    const data = statusForm[orderId] || {};
+
+    const response = await axios.put(
+      `http://localhost:5000/api/orders/${orderId}/status`,
+      {
+        status: data.status,
+        deliveryEstimateDays: data.deliveryEstimateDays || null,
+        deliveryWindowStart: data.deliveryWindowStart || '',
+        deliveryWindowEnd: data.deliveryWindowEnd || '',
+        sendEmail: data.sendEmail || false,
+      }
+    );
+
+    setMessage(response.data.message || 'Stav objednávky byl změněn.');
+    fetchOrders();
+
+    setStatusForm((prev) => ({
+  ...prev,
+  [orderId]: {},
+}));
+
+  } catch (err) {
+    setError(err.response?.data?.message || 'Nepodařilo se změnit stav objednávky.');
+  }
+};
+
   return (
     <div className="admin-page">
       <div className="admin-shell">
@@ -131,7 +194,7 @@ const AdminPanel = () => {
             <p className="profile-eyebrow">Administrace</p>
             <h1>Admin panel</h1>
             <p className="profile-subtitle">
-              Přidávání, úprava a mazání produktů v katalogu.
+              Správa produktů a objednávek v administraci.
             </p>
           </div>
 
@@ -205,6 +268,106 @@ const AdminPanel = () => {
             </div>
           </section>
         </div>
+        <section className="admin-panel-card">
+        <h2>Objednávky</h2>
+
+        <div className="admin-orders-list">
+          {orders.length === 0 ? (
+            <p className="empty-text">Zatím nejsou žádné objednávky.</p>
+          ) : (
+            orders.map((order) => {
+              const current = statusForm[order._id] || {};
+
+            return (
+               <div key={order._id} className="admin-order-item">
+               <div className="admin-order-head">
+                  <div>
+                    <h3>{order.contact?.email || order.userEmail}</h3>
+                    <p>Celkem: {order.totalPrice} Kč</p>
+                    <p>Aktuální stav: {order.status}</p>
+                  </div>
+                </div>
+
+                <div className="admin-order-products">
+                  {order.items.map((item, index) => (
+                    <p key={index}>
+                      {item.name} × {item.quantity}
+                    </p>
+                  ))}
+                </div>
+
+                <div className="admin-order-controls">
+                  <select
+                    value={current.status || order.status}
+                    onChange={(e) =>
+                      handleStatusChange(order._id, 'status', e.target.value)
+                    }
+                  >
+                    <option value="paid">Zaplaceno</option>
+                    <option value="processing">Připravujeme</option>
+                    <option value="shipped">Na cestě</option>
+                    <option value="out_for_delivery">Doručujeme dnes</option>
+                    <option value="delivered">Doručeno</option>
+                    <option value="cancelled">Zrušeno</option>
+                  </select>
+
+                  {(current.status || order.status) === 'shipped' && (
+                    <input
+                      type="number"
+                      placeholder="Za kolik dní dorazí"
+                      value={current.deliveryEstimateDays || ''}
+                      onChange={(e) =>
+                        handleStatusChange(order._id, 'deliveryEstimateDays', e.target.value)
+                      }
+                    />
+                  )}
+
+                  {(current.status || order.status) === 'out_for_delivery' && (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Od (např. 13:00)"
+                        value={current.deliveryWindowStart || ''}
+                        onChange={(e) =>
+                          handleStatusChange(order._id, 'deliveryWindowStart', e.target.value)
+                        }
+                      />
+                      <input
+                        type="text"
+                        placeholder="Do (např. 15:00)"
+                        value={current.deliveryWindowEnd || ''}
+                        onChange={(e) =>
+                          handleStatusChange(order._id, 'deliveryWindowEnd', e.target.value)
+                        }
+                      />
+                    </>
+                  )}
+
+                  <label className="checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={current.sendEmail || false}
+                      onChange={(e) =>
+                        handleStatusChange(order._id, 'sendEmail', e.target.checked)
+                      }
+                    />
+                    Poslat email zákazníkovi
+                  </label>
+
+                  <button
+                    type="button"
+                    className="profile-action-btn"
+                    onClick={() => handleUpdateOrderStatus(order._id)}
+                  >
+                    Uložit stav
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </section>
       </div>
     </div>
   );
