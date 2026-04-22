@@ -6,6 +6,16 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+
+    customerName: {
+      type: String,
+      default: '',
+    },
+
+    customerSurname: {
+      type: String,
+      default: '',
+    },
     items: [
       {
         productId: String,

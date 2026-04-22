@@ -31,6 +31,8 @@ const createOrder = async (req, res) => {
     const sendOrderEmail = require('../utils/sendEmail');
     const {
       userEmail,
+      customerName,
+      customerSurname,
       items,
       totalPrice,
       paymentMethodId,
@@ -55,6 +57,8 @@ const createOrder = async (req, res) => {
     }));
 
     const order = await Order.create({
+      customerName,
+      customerSurname,
       userEmail,
       items: mappedItems,
       totalPrice,

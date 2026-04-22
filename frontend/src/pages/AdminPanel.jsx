@@ -30,6 +30,7 @@ const AdminPanel = () => {
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [orderSearch, setOrderSearch] = useState('');
   const [statusForm, setStatusForm] = useState({});
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -186,6 +187,16 @@ const handleUpdateOrderStatus = async (orderId) => {
   }
 };
 
+const filteredOrders = orders.filter((order) => {
+  const search = orderSearch.toLowerCase();
+
+  const email = (order.contact?.email || order.userEmail || '').toLowerCase();
+  const fullName = `${order.customerName || ''} ${order.customerSurname || ''}`.toLowerCase();
+
+
+  return email.includes(search) || fullName.includes(search);
+});
+
   return (
     <div className="admin-page">
       <div className="admin-shell">
@@ -243,7 +254,7 @@ const handleUpdateOrderStatus = async (orderId) => {
 
           <section className="admin-panel-card">
             <h2>Produkty</h2>
-
+            
             <div className="admin-products-list">
               {products.map((product) => (
                 <div key={product._id} className="admin-product-item">
@@ -270,21 +281,34 @@ const handleUpdateOrderStatus = async (orderId) => {
         </div>
         <section className="admin-panel-card">
         <h2>Objednávky</h2>
+        <input
+             type="text"
+             className="admin-order-search"
+             placeholder="Hledat podle emailu nebo jmena..."
+             value={orderSearch}
+             onChange={(e) => setOrderSearch(e.target.value)}
+             />
+
 
         <div className="admin-orders-list">
-          {orders.length === 0 ? (
-            <p className="empty-text">Zatím nejsou žádné objednávky.</p>
+          {filteredOrders.length === 0 ? (
+            <p className="empty-text">Žádné objednávky neodpovídají hledání.</p>
           ) : (
-            orders.map((order) => {
+            filteredOrders.map((order) => {
               const current = statusForm[order._id] || {};
 
             return (
                <div key={order._id} className="admin-order-item">
                <div className="admin-order-head">
                   <div>
-                    <h3>{order.contact?.email || order.userEmail}</h3>
+                    <h3>
+                     {order.customerName || order.customerSurname
+                     ? `${order.customerName} ${order.customerSurname}`
+                     : 'Zákazník'}
+                     </h3>
+                    <p>{order.contact?.email || order.userEmail}</p>
                     <p>Celkem: {order.totalPrice} Kč</p>
-                    <p>Aktuální stav: {order.status}</p>
+                    <p>Aktulní stav: {statusLabels[order.status] || order.status}</p>
                   </div>
                 </div>
 

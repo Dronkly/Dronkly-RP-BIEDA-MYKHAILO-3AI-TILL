@@ -2162,3 +2162,11 @@ body {
   border-radius: 12px;
   padding: 11px 12px;
 }
+.admin-order-search {
+  width: 100%;
+  border: 1px solid #ddd3c7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 12px 0 18px;
+  outline: none;
+}

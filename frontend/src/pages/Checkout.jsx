@@ -218,6 +218,8 @@ if (!isValidCountry(formData.country)) {
     try {
       const payload = {
         userEmail: storedUser?.email || '',
+        customerName: storedUser?.name || '',
+        customerSurname: storedUser?.surname || '',
         items: cartItems,
         totalPrice,
         paymentMethodId: selectedPaymentMethod || null,
