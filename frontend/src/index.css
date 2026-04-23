@@ -4,7 +4,6 @@
   Kód byl upraven, pochopen a přizpůsoben potřebám projektu EkoModa.
 */
 
-
 * {
   margin: 0;
   padding: 0;
@@ -14,7 +13,6 @@
 html {
   scroll-behavior: smooth;
 }
-
 
 a {
   text-decoration: none;
@@ -45,7 +43,9 @@ img {
   padding: 80px 0;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   margin-bottom: 16px;
 }
 
@@ -274,7 +274,6 @@ h1, h2, h3 {
   }
 }
 
-
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -352,7 +351,6 @@ h1, h2, h3 {
   text-align: center;
 }
 
-
 .register {
   margin-top: 20px;
   text-align: center;
@@ -364,7 +362,7 @@ h1, h2, h3 {
 }
 
 .register-button {
-   display: inline-block;
+  display: inline-block;
   background: transparent;
   color: #2f5d50;
   border: 2px solid #2f5d50;
@@ -377,7 +375,7 @@ h1, h2, h3 {
 }
 
 .register-button:hover {
-   background: #2f5d50;
+  background: #2f5d50;
   color: white;
 }
 .register-card {
@@ -621,7 +619,9 @@ h1, h2, h3 {
   font-size: 1rem;
   background: white;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .profile-grid-form input:focus,
@@ -644,7 +644,9 @@ h1, h2, h3 {
   font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
 .profile-action-btn:hover {
@@ -731,7 +733,9 @@ h1, h2, h3 {
   font-size: 0.98rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
 .profile-home-btn:hover {
@@ -826,7 +830,10 @@ h1, h2, h3 {
   padding: 14px 20px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.22s ease, opacity 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease,
+    box-shadow 0.22s ease;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -876,7 +883,9 @@ h1, h2, h3 {
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 22px 42px rgba(0, 0, 0, 0.09);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .about-intro-image-wrap:hover {
@@ -916,7 +925,9 @@ h1, h2, h3 {
   border-radius: 24px;
   padding: 28px;
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
-  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
 }
 
 .about-value-card-clean:hover {
@@ -983,7 +994,10 @@ h1, h2, h3 {
   object-fit: cover;
   border-radius: 24px;
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
-  transition: transform 0.32s ease, filter 0.32s ease, box-shadow 0.32s ease;
+  transition:
+    transform 0.32s ease,
+    filter 0.32s ease,
+    box-shadow 0.32s ease;
 }
 
 .about-gallery-item-clean:hover {
@@ -1195,7 +1209,6 @@ h1, h2, h3 {
   }
 }
 
-
 .catalog-actions {
   display: flex;
   gap: 10px;
@@ -1262,9 +1275,6 @@ body {
   align-items: center;
 }
 
-
-
-
 .nav-links a:hover {
   opacity: 0.8;
   transform: translateY(-1px);
@@ -1311,7 +1321,10 @@ body {
   font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
@@ -1347,7 +1360,9 @@ body {
   border-radius: 22px;
   text-align: center;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .value-card:hover {
@@ -1384,7 +1399,9 @@ body {
   padding: 16px;
   position: relative;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .product-card:hover {
@@ -1418,7 +1435,9 @@ body {
   margin-top: 10px;
   border-radius: 12px;
   padding: 12px 18px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .product-card button:hover,
@@ -1698,7 +1717,10 @@ body {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.18s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 14px 24px rgba(47, 93, 80, 0.18);
 }
 
@@ -1870,7 +1892,9 @@ body {
   border-radius: 24px;
   padding: 22px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .profile-panel:hover {
@@ -2297,4 +2321,110 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.discount-box {
+  background: linear-gradient(135deg, #2f6b57 0%, #3e8a6f 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  margin: 40px auto;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+
+.discount-box::before,
+.discount-box::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: #f6f1e8;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.discount-box::before {
+  left: -20px;
+}
+
+.discount-box::after {
+  right: -20px;
+}
+.discount-box h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.discount-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.discount-form input {
+  flex: 1;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
+  outline: none;
+}
+
+.discount-form input::placeholder {
+  color: #888;
+}
+.discount-form button {
+  background: white;
+  color: #2f6b57;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.discount-form button:hover {
+  background: #e8f2ee;
+  transform: translateY(-1px);
+}
+.discount-message {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #ffe5e5;
+}
+.discount-box {
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.discount-form input {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
+
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+
+  backdrop-filter: blur(8px);
+
+  outline: none;
+  transition: all 0.25s ease;
 }

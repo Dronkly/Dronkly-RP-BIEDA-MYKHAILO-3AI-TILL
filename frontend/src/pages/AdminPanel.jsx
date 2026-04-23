@@ -41,6 +41,12 @@ const AdminPanel = () => {
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
   const [userDetailLoading, setUserDetailLoading] = useState(false);
 
+  const [discountForm, setDiscountForm] = useState({
+    code: "",
+    value: "",
+    title: "",
+  });
+
   const [userDetailForm, setUserDetailForm] = useState({
     name: "",
     surname: "",
@@ -118,16 +124,16 @@ const AdminPanel = () => {
       setSelectedUser(null);
       setSelectedUserOrders([]);
       setUserDetailForm({
-      name: "",
-      surname: "",
-      phone: "",
-      birthDate: "",
-      street: "",
-      city: "",
-      zipCode: "",
-      country: "",
-      role: "user",
-    });
+        name: "",
+        surname: "",
+        phone: "",
+        birthDate: "",
+        street: "",
+        city: "",
+        zipCode: "",
+        country: "",
+        role: "user",
+      });
     }
   };
 
@@ -211,6 +217,45 @@ const AdminPanel = () => {
         [field]: value,
       },
     }));
+  };
+
+  const handleDiscountFormChange = (e) => {
+    const { name, value } = e.target;
+
+    setDiscountForm((prev) => ({
+      ...prev,
+      [name]: name === "value" ? value.replace(/\D/g, "") : value,
+    }));
+  };
+
+  const handleAddDiscountToUser = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!selectedUser?._id) return;
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/profile/admin/users/${selectedUser._id}/discounts`,
+        {
+          code: discountForm.code,
+          value: Number(discountForm.value),
+          title: discountForm.title,
+        },
+      );
+
+      setMessage(response.data.message || "Sleva byla přidána.");
+      setDiscountForm({
+        code: "",
+        value: "",
+        title: "",
+      });
+
+      openUserDetail(selectedUser._id);
+    } catch (err) {
+      setError(err.response?.data?.message || "Nepodařilo se přidat slevu.");
+    }
   };
 
   const handleUpdateOrderStatus = async (orderId) => {
@@ -344,17 +389,22 @@ const AdminPanel = () => {
     setSelectedUser(null);
     setSelectedUserOrders([]);
     setUserDetailForm({
-    name: "",
-    surname: "",
-    phone: "",
-    birthDate: "",
-    street: "",
-    city: "",
-    zipCode: "",
-    country: "",
-    role: "user",
-  });
+      name: "",
+      surname: "",
+      phone: "",
+      birthDate: "",
+      street: "",
+      city: "",
+      zipCode: "",
+      country: "",
+      role: "user",
+    });
   };
+
+
+  
+
+
 
   return (
     <div className="admin-page">
@@ -810,6 +860,59 @@ const AdminPanel = () => {
                         Uložit změny
                       </button>
                     </form>
+
+                    <form
+                      className="admin-form"
+                      onSubmit={handleAddDiscountToUser}
+                    >
+                      <h3>Přidat slevu</h3>
+
+                      <input
+                        name="title"
+                        placeholder="Název slevy"
+                        value={discountForm.title}
+                        onChange={handleDiscountFormChange}
+                      />
+                      <input
+                        name="code"
+                        placeholder="Kód slevy"
+                        value={discountForm.code}
+                        onChange={handleDiscountFormChange}
+                      />
+                      <input
+                        name="value"
+                        placeholder="Sleva v %"
+                        value={discountForm.value}
+                        onChange={handleDiscountFormChange}
+                      />
+
+                      <button type="submit" className="profile-action-btn">
+                        Přidat slevu
+                      </button>
+                    </form>
+
+                    <div className="admin-user-discounts">
+                      <h3>Slevy uživatele</h3>
+
+                      {selectedUser.discounts?.length ? (
+                        selectedUser.discounts.map((discount, index) => (
+                          <div key={index} className="discount-card">
+                            <p>
+                              <strong>{discount.title}</strong>
+                            </p>
+                            <p>Kód: {discount.code}</p>
+                            <p>Sleva: {discount.value}%</p>
+                            <p>
+                              Stav: {discount.isUsed ? "Použito" : "Aktivní"}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="empty-text">
+                          Uživatel zatím nemá žádné slevy.
+                        </p>
+                      )}
+                    </div>
 
                     <div className="admin-user-orders-grid">
                       <div className="admin-user-orders-column">

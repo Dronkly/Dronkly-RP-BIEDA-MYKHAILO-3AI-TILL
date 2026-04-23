@@ -1,44 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Header from '../components/Header';
-import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Header from "../components/Header";
+import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const countryOptions = [
-  'Česká republika',
-  'Slovensko',
-  'Německo',
-  'Rakousko',
-  'Polsko'
+  "Česká republika",
+  "Slovensko",
+  "Německo",
+  "Rakousko",
+  "Polsko",
 ];
 
-const onlyDigits = (value) => value.replace(/\D/g, '');
+const onlyDigits = (value) => value.replace(/\D/g, "");
 
 const formatCardNumber = (value) => {
   const digits = onlyDigits(value).slice(0, 16);
-  return digits.replace(/(.{4})/g, '$1 ').trim();
+  return digits.replace(/(.{4})/g, "$1 ").trim();
 };
 
-
 const formatCity = (value) =>
-  value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '');
+  value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, "");
 
 const formatStreet = (value) =>
   value
-    .replace(/[^a-zA-Z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s.,/\-]/g, '')
+    .replace(/[^a-zA-Z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s.,/\-]/g, "")
     .slice(0, 80);
 
 const formatZipCode = (value) => {
-  const digits = value.replace(/\D/g, '').slice(0, 5);
+  const digits = value.replace(/\D/g, "").slice(0, 5);
   return digits.length > 3
     ? `${digits.slice(0, 3)} ${digits.slice(3)}`
     : digits;
 };
 
 const formatCountry = (value) =>
-  value
-    .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '')
-    .slice(0, 40);
+  value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, "").slice(0, 40);
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPhone = (phone) => /^\+?[0-9\s]{9,15}$/.test(phone);
@@ -46,30 +43,34 @@ const isValidCity = (value) =>
   /^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(value);
 const isValidZipCode = (value) => /^\d{3}\s?\d{2}$/.test(value);
 const isValidCountry = (value) =>
-  countryOptions.some((country) => country.toLowerCase() === value.trim().toLowerCase());
+  countryOptions.some(
+    (country) => country.toLowerCase() === value.trim().toLowerCase(),
+  );
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, totalPrice, clearCart } = useCart();
 
-  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+  const [availableDiscounts, setAvailableDiscounts] = useState([]);
+  const [selectedDiscountCode, setSelectedDiscountCode] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    cardholderName: '',
-    cardNumber: '',
-    expiryMonth: '',
-    expiryYear: '',
-    phone: '',
-    email: storedUser?.email || '',
-    street: '',
-    city: '',
-    zipCode: '',
-    country: '',
+    cardholderName: "",
+    cardNumber: "",
+    expiryMonth: "",
+    expiryYear: "",
+    phone: "",
+    email: storedUser?.email || "",
+    street: "",
+    city: "",
+    zipCode: "",
+    country: "",
   });
 
   useEffect(() => {
@@ -80,148 +81,174 @@ const Checkout = () => {
 
   const fetchPaymentMethods = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/profile/${storedUser.email}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/profile/${storedUser.email}`,
+      );
       setPaymentMethods(response.data.paymentMethods || []);
+      setAvailableDiscounts(
+        (response.data.user?.discounts || []).filter(
+          (discount) => !discount.isUsed,
+        ),
+      );
     } catch (err) {
-      console.error('Chyba při načítání platebních metod:', err);
+      console.error("Chyba při načítání platebních metod:", err);
     }
   };
 
+  const selectedDiscount = availableDiscounts.find(
+    (discount) => discount.code === selectedDiscountCode,
+  );
+
+  const discountedTotalPrice = selectedDiscount
+    ? Math.round(totalPrice * (1 - selectedDiscount.value / 100))
+    : totalPrice;
+
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  let newValue = value;
+    let newValue = value;
 
-   if (name === 'cardholderName') {
-    newValue = value
-      .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, '')
-      .slice(0, 50);
-   }
+    if (name === "cardholderName") {
+      newValue = value
+        .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, "")
+        .slice(0, 50);
+    }
 
-
-    if (name === 'cardNumber') {
+    if (name === "cardNumber") {
       newValue = formatCardNumber(value);
     }
 
-    if (name === 'expiryMonth') {
+    if (name === "expiryMonth") {
       newValue = onlyDigits(value).slice(0, 2);
     }
 
-    if (name === 'expiryYear') {
+    if (name === "expiryYear") {
       newValue = onlyDigits(value).slice(0, 4);
     }
 
-    if (name === 'phone') {
-      newValue = value.replace(/[^0-9+\s]/g, '').slice(0, 15);
+    if (name === "phone") {
+      newValue = value.replace(/[^0-9+\s]/g, "").slice(0, 15);
     }
 
-    if (name === 'zipCode') {
+    if (name === "zipCode") {
       newValue = formatZipCode(value);
     }
 
-    if (name === 'city') {
+    if (name === "city") {
       newValue = formatCity(value);
     }
 
-    if (name === 'street') {
+    if (name === "street") {
       newValue = formatStreet(value);
     }
 
-    if (name === 'country') {
+    if (name === "country") {
       newValue = formatCountry(value);
     }
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: newValue,
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }));
   };
-  
-
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     if (!isValidEmail(formData.email)) {
-      setError('Zadej platný email.');
+      setError("Zadej platný email.");
       return;
     }
 
     if (!isValidPhone(formData.phone)) {
-      setError('Zadej platné telefonní číslo.');
+      setError("Zadej platné telefonní číslo.");
       return;
     }
 
-    if (!formData.street || !formData.city || !formData.zipCode || !formData.country) {
-      setError('Vyplň celou adresu.');
+    if (
+      !formData.street ||
+      !formData.city ||
+      !formData.zipCode ||
+      !formData.country
+    ) {
+      setError("Vyplň celou adresu.");
       return;
     }
-
 
     if (cartItems.length === 0) {
-      setError('Košík je prázdný.');
+      setError("Košík je prázdný.");
       return;
     }
- 
 
-if (paymentMethods.length > 0 && !selectedPaymentMethod) {
-    setError('Vyber platební metodu.');
-    return;
-  }
-
-  if (paymentMethods.length === 0) {
-
-    
-   const rawCardNumber = onlyDigits(formData.cardNumber);
-
-  if (!formData.cardholderName.trim()) {
-    setError('Zadej jméno na kartě.');
-    return;
-  }
-
-  if (!/^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(formData.cardholderName.trim())) {
-  setError('Jméno na kartě obsahuje neplatné znaky.');
-  return;
+    if (paymentMethods.length > 0 && !selectedPaymentMethod) {
+      setError("Vyber platební metodu.");
+      return;
     }
 
-  if (rawCardNumber.length !== 16) {
-    setError('Číslo karty musí mít 16 číslic.');
-    return;
-  }
+    if (paymentMethods.length === 0) {
+      const rawCardNumber = onlyDigits(formData.cardNumber);
 
-  const month = Number(formData.expiryMonth);
-  if (!formData.expiryMonth || month < 1 || month > 12) {
-    setError('Měsíc expirace musí být od 1 do 12.');
-    return;
-  }
+      if (!formData.cardholderName.trim()) {
+        setError("Zadej jméno na kartě.");
+        return;
+      }
 
-  if (!/^\d{4}$/.test(formData.expiryYear)) {
-    setError('Rok expirace musí mít 4 číslice.');
-    return;
-  }
-}  if (!isValidCity(formData.city)) {
-  setError('Zadej platné město.');
-  return;
-}
+      if (
+        !/^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(
+          formData.cardholderName.trim(),
+        )
+      ) {
+        setError("Jméno na kartě obsahuje neplatné znaky.");
+        return;
+      }
 
-if (!isValidZipCode(formData.zipCode)) {
-  setError('PSČ musí být ve formátu 123 45.');
-  return;
-}
+      if (rawCardNumber.length !== 16) {
+        setError("Číslo karty musí mít 16 číslic.");
+        return;
+      }
 
-if (!isValidCountry(formData.country)) {
-  setError('Vyber platnou zemi z nabídky.');
-  return;
-}
+      const month = Number(formData.expiryMonth);
+      if (!formData.expiryMonth || month < 1 || month > 12) {
+        setError("Měsíc expirace musí být od 1 do 12.");
+        return;
+      }
+
+      if (!/^\d{4}$/.test(formData.expiryYear)) {
+        setError("Rok expirace musí mít 4 číslice.");
+        return;
+      }
+    }
+    if (!isValidCity(formData.city)) {
+      setError("Zadej platné město.");
+      return;
+    }
+
+    if (!isValidZipCode(formData.zipCode)) {
+      setError("PSČ musí být ve formátu 123 45.");
+      return;
+    }
+
+    if (!isValidCountry(formData.country)) {
+      setError("Vyber platnou zemi z nabídky.");
+      return;
+    }
     try {
       const payload = {
-        userEmail: storedUser?.email || '',
-        customerName: storedUser?.name || '',
-        customerSurname: storedUser?.surname || '',
+        userEmail: storedUser?.email || "",
+        customerName: storedUser?.name || "",
+        customerSurname: storedUser?.surname || "",
         items: cartItems,
-        totalPrice,
+        totalPrice: discountedTotalPrice,
+        originalPrice: totalPrice,
+        appliedDiscount: selectedDiscount
+          ? {
+              code: selectedDiscount.code,
+              value: selectedDiscount.value,
+              title: selectedDiscount.title,
+            }
+          : null,
         paymentMethodId: selectedPaymentMethod || null,
         contact: {
           phone: formData.phone,
@@ -244,16 +271,19 @@ if (!isValidCountry(formData.country)) {
             : null,
       };
 
-      const response = await axios.post('http://localhost:5000/api/orders', payload);
+      const response = await axios.post(
+        "http://localhost:5000/api/orders",
+        payload,
+      );
 
-      setMessage(response.data.message || 'Platba proběhla úspěšně.');
+      setMessage(response.data.message || "Platba proběhla úspěšně.");
       clearCart();
 
       setTimeout(() => {
-        navigate('/catalog');
+        navigate("/catalog");
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Platba se nepodařila.');
+      setError(err.response?.data?.message || "Platba se nepodařila.");
     }
   };
 
@@ -323,18 +353,18 @@ if (!isValidCountry(formData.country)) {
 
                 <label>Země</label>
                 <input
-                   name="country"
-                   value={formData.country}
-                   onChange={handleChange}
-                   list="countries"
-                   required
-                   />
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                  list="countries"
+                  required
+                />
 
                 <datalist id="countries">
                   {countryOptions.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-               </datalist>
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
               </div>
 
               <div className="checkout-section">
@@ -349,10 +379,13 @@ if (!isValidCountry(formData.country)) {
                           name="savedPayment"
                           value={method._id}
                           checked={selectedPaymentMethod === method._id}
-                          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                          onChange={(e) =>
+                            setSelectedPaymentMethod(e.target.value)
+                          }
                         />
                         <span>
-                          {method.cardBrand} •••• {method.last4} ({method.cardholderName})
+                          {method.cardBrand} •••• {method.last4} (
+                          {method.cardholderName})
                         </span>
                       </label>
                     ))}
@@ -396,7 +429,23 @@ if (!isValidCountry(formData.country)) {
                   </>
                 )}
               </div>
+              {availableDiscounts.length > 0 && (
+                <div className="checkout-section">
+                  <h2>Sleva</h2>
 
+                  <select
+                    value={selectedDiscountCode}
+                    onChange={(e) => setSelectedDiscountCode(e.target.value)}
+                  >
+                    <option value="">Bez slevy</option>
+                    {availableDiscounts.map((discount, index) => (
+                      <option key={index} value={discount.code}>
+                        {discount.title} - {discount.value}%
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <button type="submit" className="checkout-pay-btn">
                 Zaplatit
               </button>
@@ -407,14 +456,23 @@ if (!isValidCountry(formData.country)) {
 
               {cartItems.map((item) => (
                 <div key={item._id} className="checkout-summary-item">
-                  <span>{item.name} × {item.quantity}</span>
+                  <span>
+                    {item.name} × {item.quantity}
+                  </span>
                   <span>{item.price * item.quantity} Kč</span>
                 </div>
               ))}
+              {selectedDiscount && (
+                <div className="checkout-summary-item">
+                  <span>Sleva</span>
+                  <span>- {selectedDiscount.value}%</span>
+                </div>
+              )}
 
               <div className="checkout-total">
                 <strong>Celkem:</strong>
-                <strong>{totalPrice} Kč</strong>
+                <strong>{discountedTotalPrice} Kč</strong>
+                
               </div>
             </div>
           </div>

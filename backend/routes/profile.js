@@ -7,7 +7,9 @@ const {
   deletePaymentMethod,
   getAllUsers,
   getAdminUserDetail,
-  updateAdminUser
+  updateAdminUser,
+  addDiscountToUser
+
 } = require('../controlers/profileController');
 
 
@@ -17,6 +19,8 @@ router.put('/admin/users/:id', updateAdminUser);
 router.get('/:email', getProfile);
 router.put('/:email', updateProfile);
 router.post('/:email/payment-methods', addPaymentMethod);
+router.post("/admin/users/:id/discounts", addDiscountToUser);
 router.delete('/:email/payment-methods/:methodId', deletePaymentMethod);
+
 
 module.exports = router;

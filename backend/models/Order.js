@@ -1,20 +1,20 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
     userEmail: {
       type: String,
-      default: '',
+      default: "",
     },
 
     customerName: {
       type: String,
-      default: '',
+      default: "",
     },
 
     customerSurname: {
       type: String,
-      default: '',
+      default: "",
     },
     items: [
       {
@@ -50,8 +50,15 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['paid', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'],
-      default: 'paid',
+      enum: [
+        "paid",
+        "processing",
+        "shipped",
+        "out_for_delivery",
+        "delivered",
+        "cancelled",
+      ],
+      default: "paid",
     },
 
     deliveryEstimateDays: {
@@ -61,15 +68,34 @@ const orderSchema = new mongoose.Schema(
 
     deliveryWindowStart: {
       type: String,
-      default: '',
+      default: "",
     },
 
     deliveryWindowEnd: {
       type: String,
-      default: '',
+      default: "",
+    },
+
+    appliedDiscount: {
+      code: {
+        type: String,
+        default: "",
+      },
+      value: {
+        type: Number,
+        default: 0,
+      },
+      title: {
+        type: String,
+        default: "",
+      },
+    },
+    originalPrice: {
+      type: Number,
+      default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model("Order", orderSchema);
