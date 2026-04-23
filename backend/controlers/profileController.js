@@ -21,6 +21,19 @@ const getProfile = async (req, res) => {
     res.status(500).json({ message: 'Chyba při načítání profilu.' });
   }
 };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select('-password -verificationCode -verificationCodeExpires')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('GET ALL USERS ERROR:', error);
+    res.status(500).json({ message: 'Chyba při načítání uživatelů.' });
+  }
+};
+
 
 const updateProfile = async (req, res) => {
   try {
@@ -125,9 +138,81 @@ const deletePaymentMethod = async (req, res) => {
   }
 };
 
+const Order = require('../models/Order');
+
+const getAdminUserDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id).select(
+      '-password -verificationCode -verificationCodeExpires'
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'Uživatel nebyl nalezen.' });
+    }
+
+    const orders = await Order.find({ userEmail: user.email }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      user,
+      orders,
+    });
+  } catch (error) {
+    console.error('GET ADMIN USER DETAIL ERROR:', error);
+    res.status(500).json({ message: 'Chyba při načítání detailu uživatele.' });
+  }
+};
+
+const updateAdminUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      surname,
+      phone,
+      birthDate,
+      street,
+      city,
+      zipCode,
+      country,
+      role,
+    } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Uživatel nebyl nalezen.' });
+    }
+
+    user.name = name;
+    user.surname = surname;
+    user.phone = phone;
+    user.birthDate = birthDate;
+    user.street = street;
+    user.city = city;
+    user.zipCode = zipCode;
+    user.country = country;
+    user.role = role || user.role;
+
+    await user.save();
+
+    res.status(200).json({
+      message: 'Uživatel byl úspěšně upraven.',
+      user,
+    });
+  } catch (error) {
+    console.error('UPDATE ADMIN USER ERROR:', error);
+    res.status(500).json({ message: 'Chyba při úpravě uživatele.' });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   addPaymentMethod,
-  deletePaymentMethod
+  deletePaymentMethod,
+  getAllUsers,
+  getAdminUserDetail,
+  updateAdminUser,
 };
