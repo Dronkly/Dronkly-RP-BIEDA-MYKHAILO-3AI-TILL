@@ -18,6 +18,9 @@ import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import AdminPanel from "./pages/AdminPanel";
+import AdminEditProduct from "./pages/AdminEditProduct";
+import AdminUserDetail from "./pages/AdminUserDetail";
+
 
 import CartDrawer from "./components/CartDrawer";
 import Header from "./components/Header";
@@ -78,6 +81,13 @@ export default function App() {
 
           {/*Admin panel */}
         <Route path="/admin" element={<AdminPanel />} />
+
+
+          {/*Uprava produktu*/}
+        <Route path="/admin/products/:id/edit" element={<AdminEditProduct />} />
+
+          {/*Uprava uzivatele */}
+        <Route path="/admin/users/:id" element={<AdminUserDetail />} />
 
         
       </Routes>

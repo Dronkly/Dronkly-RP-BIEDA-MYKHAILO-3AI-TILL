@@ -18,6 +18,23 @@ const getOrdersByUserEmail = async (req, res) => {
   }
 };
 
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await Order.findByIdAndDelete(id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Objednávka nebyla nalezena." });
+    }
+
+    res.status(200).json({ message: "Objednávka byla smazána." });
+  } catch (error) {
+    console.error("DELETE ORDER ERROR:", error);
+    res.status(500).json({ message: "Chyba při mazání objednávky." });
+  }
+};
+
 const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -74,6 +91,8 @@ const createOrder = async (req, res) => {
       address,
       status: "paid",
     });
+
+
 
     if (appliedDiscount?.code && userEmail) {
       const user = await User.findOne({ email: userEmail });
@@ -147,4 +166,5 @@ module.exports = {
   getOrdersByUserEmail,
   getAllOrders,
   updateOrderStatus,
+  deleteOrder,
 };

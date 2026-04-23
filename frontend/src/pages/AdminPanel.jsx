@@ -37,27 +37,6 @@ const AdminPanel = () => {
   const [activeSection, setActiveSection] = useState("products");
   const [users, setUsers] = useState([]);
   const [userSearch, setUserSearch] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedUserOrders, setSelectedUserOrders] = useState([]);
-  const [userDetailLoading, setUserDetailLoading] = useState(false);
-
-  const [discountForm, setDiscountForm] = useState({
-    code: "",
-    value: "",
-    title: "",
-  });
-
-  const [userDetailForm, setUserDetailForm] = useState({
-    name: "",
-    surname: "",
-    phone: "",
-    birthDate: "",
-    street: "",
-    city: "",
-    zipCode: "",
-    country: "",
-    role: "user",
-  });
 
   useEffect(() => {
     if (!storedUser || storedUser.role !== "admin") {
@@ -117,24 +96,9 @@ const AdminPanel = () => {
       [name]: newValue,
     }));
   };
+
   const handleSectionChange = (section) => {
     setActiveSection(section);
-
-    if (section !== "users") {
-      setSelectedUser(null);
-      setSelectedUserOrders([]);
-      setUserDetailForm({
-        name: "",
-        surname: "",
-        phone: "",
-        birthDate: "",
-        street: "",
-        city: "",
-        zipCode: "",
-        country: "",
-        role: "user",
-      });
-    }
   };
 
   const resetForm = () => {
@@ -179,21 +143,6 @@ const AdminPanel = () => {
     }
   };
 
-  const handleEdit = (product) => {
-    setEditingId(product._id);
-    setFormData({
-      name: product.name || "",
-      slug: product.slug || "",
-      description: product.description || "",
-      price: product.price?.toString() || "",
-      image: product.image || "",
-      category: product.category || "",
-      material: product.material || "",
-      stock: product.stock?.toString() || "",
-    });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const handleDelete = async (productId) => {
     setMessage("");
     setError("");
@@ -217,45 +166,6 @@ const AdminPanel = () => {
         [field]: value,
       },
     }));
-  };
-
-  const handleDiscountFormChange = (e) => {
-    const { name, value } = e.target;
-
-    setDiscountForm((prev) => ({
-      ...prev,
-      [name]: name === "value" ? value.replace(/\D/g, "") : value,
-    }));
-  };
-
-  const handleAddDiscountToUser = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-
-    if (!selectedUser?._id) return;
-
-    try {
-      const response = await axios.post(
-        `http://localhost:5000/api/profile/admin/users/${selectedUser._id}/discounts`,
-        {
-          code: discountForm.code,
-          value: Number(discountForm.value),
-          title: discountForm.title,
-        },
-      );
-
-      setMessage(response.data.message || "Sleva byla přidána.");
-      setDiscountForm({
-        code: "",
-        value: "",
-        title: "",
-      });
-
-      openUserDetail(selectedUser._id);
-    } catch (err) {
-      setError(err.response?.data?.message || "Nepodařilo se přidat slevu.");
-    }
   };
 
   const handleUpdateOrderStatus = async (orderId) => {
@@ -290,38 +200,6 @@ const AdminPanel = () => {
     }
   };
 
-  const handleUserDetailChange = (e) => {
-    const { name, value } = e.target;
-
-    setUserDetailForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleUserDetailSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-
-    if (!selectedUser?._id) return;
-
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/profile/admin/users/${selectedUser._id}`,
-        userDetailForm,
-      );
-
-      setMessage(response.data.message || "Uživatel byl upraven.");
-      fetchUsers();
-      openUserDetail(selectedUser._id);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Nepodařilo se upravit uživatele.",
-      );
-    }
-  };
-
   const filteredOrders = orders.filter((order) => {
     const search = orderSearch.toLowerCase();
 
@@ -340,71 +218,6 @@ const AdminPanel = () => {
 
     return fullName.includes(search) || email.includes(search);
   });
-
-  const activeUserOrders = selectedUserOrders.filter((order) =>
-    ["paid", "processing", "shipped", "out_for_delivery"].includes(
-      order.status,
-    ),
-  );
-
-  const historyUserOrders = selectedUserOrders.filter((order) =>
-    ["delivered", "cancelled"].includes(order.status),
-  );
-
-  const openUserDetail = async (userId) => {
-    setMessage("");
-    setError("");
-    setUserDetailLoading(true);
-
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/profile/admin/users/${userId}`,
-      );
-      const { user, orders } = response.data;
-
-      setSelectedUser(user);
-      setSelectedUserOrders(orders || []);
-
-      setUserDetailForm({
-        name: user.name || "",
-        surname: user.surname || "",
-        phone: user.phone || "",
-        birthDate: user.birthDate ? user.birthDate.slice(0, 10) : "",
-        street: user.street || "",
-        city: user.city || "",
-        zipCode: user.zipCode || "",
-        country: user.country || "",
-        role: user.role || "user",
-      });
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Nepodařilo se načíst detail uživatele.",
-      );
-    } finally {
-      setUserDetailLoading(false);
-    }
-  };
-
-  const closeUserDetail = () => {
-    setSelectedUser(null);
-    setSelectedUserOrders([]);
-    setUserDetailForm({
-      name: "",
-      surname: "",
-      phone: "",
-      birthDate: "",
-      street: "",
-      city: "",
-      zipCode: "",
-      country: "",
-      role: "user",
-    });
-  };
-
-
-  
-
-
 
   return (
     <div className="admin-page">
@@ -553,7 +366,9 @@ const AdminPanel = () => {
                           <button
                             type="button"
                             className="profile-action-btn"
-                            onClick={() => handleEdit(product)}
+                            onClick={() =>
+                              navigate(`/admin/products/${product._id}/edit`)
+                            }
                           >
                             Upravit
                           </button>
@@ -765,7 +580,7 @@ const AdminPanel = () => {
                           <button
                             type="button"
                             className="profile-action-btn"
-                            onClick={() => openUserDetail(user._id)}
+                            onClick={() => navigate(`/admin/users/${user._id}`)}
                           >
                             Detail
                           </button>
@@ -774,215 +589,6 @@ const AdminPanel = () => {
                     ))
                   )}
                 </div>
-
-                {userDetailLoading && <p>Načítání detailu uživatele...</p>}
-
-                {selectedUser && (
-                  <section className="admin-panel-card admin-user-detail-card">
-                    <div className="admin-user-detail-header">
-                      <h2>
-                        Detail uživatele: {selectedUser.name}{" "}
-                        {selectedUser.surname}
-                      </h2>
-
-                      <button
-                        type="button"
-                        className="delete-card-btn"
-                        onClick={closeUserDetail}
-                      >
-                        Zavřít detail
-                      </button>
-                    </div>
-
-                    <form
-                      className="admin-form"
-                      onSubmit={handleUserDetailSubmit}
-                    >
-                      <input
-                        name="name"
-                        placeholder="Jméno"
-                        value={userDetailForm.name}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="surname"
-                        placeholder="Příjmení"
-                        value={userDetailForm.surname}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="phone"
-                        placeholder="Telefon"
-                        value={userDetailForm.phone}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="birthDate"
-                        type="date"
-                        value={userDetailForm.birthDate}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="street"
-                        placeholder="Ulice a číslo"
-                        value={userDetailForm.street}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="city"
-                        placeholder="Město"
-                        value={userDetailForm.city}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="zipCode"
-                        placeholder="PSČ"
-                        value={userDetailForm.zipCode}
-                        onChange={handleUserDetailChange}
-                      />
-                      <input
-                        name="country"
-                        placeholder="Země"
-                        value={userDetailForm.country}
-                        onChange={handleUserDetailChange}
-                      />
-
-                      <select
-                        name="role"
-                        value={userDetailForm.role}
-                        onChange={handleUserDetailChange}
-                      >
-                        <option value="user">Uživatel</option>
-                        <option value="admin">Admin</option>
-                      </select>
-
-                      <button type="submit" className="profile-action-btn">
-                        Uložit změny
-                      </button>
-                    </form>
-
-                    <form
-                      className="admin-form"
-                      onSubmit={handleAddDiscountToUser}
-                    >
-                      <h3>Přidat slevu</h3>
-
-                      <input
-                        name="title"
-                        placeholder="Název slevy"
-                        value={discountForm.title}
-                        onChange={handleDiscountFormChange}
-                      />
-                      <input
-                        name="code"
-                        placeholder="Kód slevy"
-                        value={discountForm.code}
-                        onChange={handleDiscountFormChange}
-                      />
-                      <input
-                        name="value"
-                        placeholder="Sleva v %"
-                        value={discountForm.value}
-                        onChange={handleDiscountFormChange}
-                      />
-
-                      <button type="submit" className="profile-action-btn">
-                        Přidat slevu
-                      </button>
-                    </form>
-
-                    <div className="admin-user-discounts">
-                      <h3>Slevy uživatele</h3>
-
-                      {selectedUser.discounts?.length ? (
-                        selectedUser.discounts.map((discount, index) => (
-                          <div key={index} className="discount-card">
-                            <p>
-                              <strong>{discount.title}</strong>
-                            </p>
-                            <p>Kód: {discount.code}</p>
-                            <p>Sleva: {discount.value}%</p>
-                            <p>
-                              Stav: {discount.isUsed ? "Použito" : "Aktivní"}
-                            </p>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="empty-text">
-                          Uživatel zatím nemá žádné slevy.
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="admin-user-orders-grid">
-                      <div className="admin-user-orders-column">
-                        <h3>Aktivní objednávky</h3>
-
-                        {activeUserOrders.length === 0 ? (
-                          <p className="empty-text">
-                            Žádné aktivní objednávky.
-                          </p>
-                        ) : (
-                          activeUserOrders.map((order) => (
-                            <details key={order._id} className="order-card">
-                              <summary>
-                                {new Date(order.createdAt).toLocaleDateString(
-                                  "cs-CZ",
-                                )}{" "}
-                                • {statusLabels[order.status] || order.status} •{" "}
-                                {order.totalPrice} Kč
-                              </summary>
-
-                              <div className="order-items">
-                                {order.items.map((item, index) => (
-                                  <div key={index} className="order-item-row">
-                                    <span>
-                                      {item.name} × {item.quantity}
-                                    </span>
-                                    <span>{item.price * item.quantity} Kč</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </details>
-                          ))
-                        )}
-                      </div>
-
-                      <div className="admin-user-orders-column">
-                        <h3>Historie objednávek</h3>
-
-                        {historyUserOrders.length === 0 ? (
-                          <p className="empty-text">
-                            Žádná historie objednávek.
-                          </p>
-                        ) : (
-                          historyUserOrders.map((order) => (
-                            <details key={order._id} className="order-card">
-                              <summary>
-                                {new Date(order.createdAt).toLocaleDateString(
-                                  "cs-CZ",
-                                )}{" "}
-                                • {statusLabels[order.status] || order.status} •{" "}
-                                {order.totalPrice} Kč
-                              </summary>
-
-                              <div className="order-items">
-                                {order.items.map((item, index) => (
-                                  <div key={index} className="order-item-row">
-                                    <span>
-                                      {item.name} × {item.quantity}
-                                    </span>
-                                    <span>{item.price * item.quantity} Kč</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </details>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </section>
-                )}
               </section>
             )}
           </div>

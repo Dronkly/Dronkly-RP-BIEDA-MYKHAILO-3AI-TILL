@@ -3,35 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Newsletter() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const [discountEmail, setDiscountEmail] = useState("");
   const [discountMessage, setDiscountMessage] = useState("");
   const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await fetch("http://localhost:5000/api/subscribers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-      setMessage(data.message);
-
-      if (res.ok) {
-        setEmail("");
-      }
-    } catch (error) {
-      setMessage("Nepodařilo se odeslat formulář.");
-    }
-  };
 
   const handleDiscountSignup = async (e) => {
     e.preventDefault();
@@ -65,23 +40,34 @@ export default function Newsletter() {
       <div className="container">
         {!storedUser && (
           <div className="discount-box">
-            <h2>Získej 10% slevu na první nákup</h2>
+            <div className="discount-badge">-10 %</div>
 
-            <form onSubmit={handleDiscountSignup}>
+            <h2 className="discount-title">Získej 10% slevu na první nákup</h2>
+
+            <p className="discount-subtitle">
+              Zadej svůj e-mail a po registraci získáš slevu do profilu.
+            </p>
+
+            <form onSubmit={handleDiscountSignup} className="discount-form">
               <input
+                className="discount-input"
                 type="email"
                 placeholder="Zadej e-mail"
                 value={discountEmail}
                 onChange={(e) => setDiscountEmail(e.target.value)}
                 required
               />
-              <button type="submit">Přihlásit se</button>
+
+              <button type="submit" className="discount-button">
+                Získat slevu
+              </button>
             </form>
 
-            {discountMessage && <p className="discount-message">{discountMessage}</p>}
+            {discountMessage && (
+              <p className="discount-message">{discountMessage}</p>
+            )}
           </div>
         )}
-        
       </div>
     </section>
   );
