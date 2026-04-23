@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema(
 
     description: {
       type: String,
-      default: '',
+      default: "",
       trim: true,
     },
 
@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      default: '',
+      default: "",
       trim: true,
     },
 
@@ -53,17 +53,12 @@ const productSchema = new mongoose.Schema(
 
     material: {
       type: String,
-      default: '',
+      default: "",
       trim: true,
     },
-
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports =
-  mongoose.models.Product || mongoose.model('Product', productSchema);
+  mongoose.models.Product || mongoose.model("Product", productSchema);

@@ -433,17 +433,29 @@ const Checkout = () => {
                 <div className="checkout-section">
                   <h2>Sleva</h2>
 
-                  <select
-                    value={selectedDiscountCode}
-                    onChange={(e) => setSelectedDiscountCode(e.target.value)}
-                  >
-                    <option value="">Bez slevy</option>
-                    {availableDiscounts.map((discount, index) => (
-                      <option key={index} value={discount.code}>
-                        {discount.title} - {discount.value}%
-                      </option>
-                    ))}
-                  </select>
+                  <div className="checkout-discount-box">
+                    <label>Vyber slevový kupón</label>
+
+                    <select
+                      className="checkout-discount-select"
+                      value={selectedDiscountCode}
+                      onChange={(e) => setSelectedDiscountCode(e.target.value)}
+                    >
+                      <option value="">Bez slevy</option>
+                      {availableDiscounts.map((discount, index) => (
+                        <option key={index} value={discount.code}>
+                          {discount.title} - {discount.value}%
+                        </option>
+                      ))}
+                    </select>
+
+                    {selectedDiscount && (
+                      <p className="checkout-discount-info">
+                        Sleva {selectedDiscount.value}% bude odečtena z
+                        objednávky.
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
               <button type="submit" className="checkout-pay-btn">
@@ -472,7 +484,6 @@ const Checkout = () => {
               <div className="checkout-total">
                 <strong>Celkem:</strong>
                 <strong>{discountedTotalPrice} Kč</strong>
-                
               </div>
             </div>
           </div>

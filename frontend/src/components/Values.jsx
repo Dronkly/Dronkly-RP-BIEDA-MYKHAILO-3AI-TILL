@@ -1,50 +1,46 @@
 import { motion } from "framer-motion";
 
-
 const values = [
   {
     title: "Udržitelné materiály",
-    text: "Bio bavlna, len a recyklované tkaniny."
+    text: "Bio bavlna, len a recyklované tkaniny.",
   },
   {
     title: "Etická výroba",
-    text: "Férové podmínky a zodpovědný přístup."
+    text: "Férové podmínky a zodpovědný přístup.",
   },
   {
     title: "Nízká uhlíková stopa",
-    text: "Menší dopad na planetu."
-  }
+    text: "Menší dopad na planetu.",
+  },
 ];
 
 export default function Values() {
   return (
-     <section className="values section">
-      <div className="container">
-
-        <div className="section-heading">
-          <p>Naše hodnoty</p>
-          <h2>Na čem nám záleží</h2>
-        </div>
+    <section className="values-section">
+      <div className="values-container">
+        <p className="values-eyebrow">Naše hodnoty</p>
+        <h2>Na čem nám záleží</h2>
 
         <div className="values-grid">
-          {values.map((item, index) => (
-            <motion.div
-              className="value-card"
-              key={index}
-              initial={{ opacity: 0, y: 35 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.15, duration: 0.6 }}
-            >
-              <div className="value-icon">{item.icon}</div>
+          <div className="value-card">
+            <div className="value-icon">🌱</div>
+            <h3>Udržitelné materiály</h3>
+            <p>Bio bavlna, len a recyklované tkaniny.</p>
+          </div>
 
-              <h3>{item.title}</h3>
-              <p className="value-main">{item.text}</p>
-              <p className="value-desc">{item.description}</p>
-            </motion.div>
-          ))}
+          <div className="value-card">
+            <div className="value-icon">🤝</div>
+            <h3>Etická výroba</h3>
+            <p>Férové podmínky a zodpovědný přístup.</p>
+          </div>
+
+          <div className="value-card">
+            <div className="value-icon">🌍</div>
+            <h3>Nízká uhlíková stopa</h3>
+            <p>Menší dopad na planetu.</p>
+          </div>
         </div>
-
       </div>
     </section>
   );
