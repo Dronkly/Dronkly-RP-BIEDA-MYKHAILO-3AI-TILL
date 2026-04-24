@@ -10,6 +10,8 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const productRoutes = require('./routes/product');
 const orderRoutes = require('./routes/order');
+const reviewRoutes = require("./routes/review");
+const homeReviewRoutes = require("./routes/homeReview");
 
 
 
@@ -22,6 +24,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/home-reviews", homeReviewRoutes);
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Ahoj z backendu! 👋' });

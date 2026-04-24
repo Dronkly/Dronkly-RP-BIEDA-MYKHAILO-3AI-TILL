@@ -37,6 +37,15 @@ const AdminPanel = () => {
   const [activeSection, setActiveSection] = useState("products");
   const [users, setUsers] = useState([]);
   const [userSearch, setUserSearch] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [homeReviews, setHomeReviews] = useState([]);
+  const [homeReviewForm, setHomeReviewForm] = useState({
+    name: "",
+    role: "",
+    rating: "5",
+    text: "",
+    image: "",
+  });
 
   useEffect(() => {
     if (!storedUser || storedUser.role !== "admin") {
@@ -47,6 +56,8 @@ const AdminPanel = () => {
     fetchProducts();
     fetchOrders();
     fetchUsers();
+    fetchReviews();
+    fetchHomeReviews();
   }, []);
 
   const fetchOrders = async () => {
@@ -81,6 +92,17 @@ const AdminPanel = () => {
       setError("Nepodařilo se načíst uživatele.");
     }
   };
+
+  const fetchHomeReviews = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:5000/api/home-reviews/admin/all"
+    );
+    setHomeReviews(response.data);
+  } catch (err) {
+    setError("Nepodařilo se načíst hodnocení na homepage.");
+  }
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -200,6 +222,90 @@ const AdminPanel = () => {
     }
   };
 
+  const handleHomeReviewChange = (e) => {
+    const { name, value } = e.target;
+
+    setHomeReviewForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddHomeReview = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/home-reviews",
+        {
+          ...homeReviewForm,
+          rating: Number(homeReviewForm.rating),
+        },
+      );
+
+      setMessage(response.data.message || "Hodnocení bylo přidáno.");
+
+      setHomeReviewForm({
+        name: "",
+        role: "",
+        rating: "5",
+        text: "",
+        image: "",
+      });
+
+      fetchHomeReviews();
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Nepodařilo se přidat hodnocení.",
+      );
+    }
+  };
+
+  const handleDeleteHomeReview = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/home-reviews/${id}`);
+      fetchHomeReviews();
+    } catch (err) {
+      setError("Nepodařilo se smazat hodnocení.");
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/reviews/admin/all",
+      );
+      setReviews(response.data);
+    } catch (err) {
+      setError("Nepodařilo se načíst recenze.");
+    }
+  };
+
+  const handleToggleReview = async (review) => {
+    try {
+      await axios.put(`http://localhost:5000/api/reviews/admin/${review._id}`, {
+        rating: review.rating,
+        text: review.text,
+        isApproved: !review.isApproved,
+      });
+
+      fetchReviews();
+    } catch (err) {
+      setError("Nepodařilo se upravit recenzi.");
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/reviews/admin/${id}`);
+      fetchReviews();
+    } catch (err) {
+      setError("Nepodařilo se smazat recenzi.");
+    }
+  };
+
   const filteredOrders = orders.filter((order) => {
     const search = orderSearch.toLowerCase();
 
@@ -260,6 +366,19 @@ const AdminPanel = () => {
               onClick={() => handleSectionChange("users")}
             >
               Uživatelé
+            </button>
+            <button
+              className={`admin-menu-btn ${activeSection === "reviews" ? "active" : ""}`}
+              onClick={() => handleSectionChange("reviews")}
+            >
+              Recenze
+            </button>
+
+            <button
+              className={`admin-menu-btn ${activeSection === "homeReviews" ? "active" : ""}`}
+              onClick={() => handleSectionChange("homeReviews")}
+            >
+              Homepage hodnocení
             </button>
           </aside>
 
@@ -585,6 +704,144 @@ const AdminPanel = () => {
                             Detail
                           </button>
                         </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
+
+            {activeSection === "reviews" && (
+              <section className="admin-panel-card">
+                <h2>Recenze uživatelů</h2>
+
+                <div className="admin-reviews-list">
+                  {reviews.length === 0 ? (
+                    <p className="empty-text">Zatím nejsou žádné recenze.</p>
+                  ) : (
+                    reviews.map((review) => (
+                      <div key={review._id} className="admin-review-card">
+                        <div>
+                          <h3>
+                            {review.user?.name} {review.user?.surname}
+                          </h3>
+                          <p>{review.user?.email}</p>
+                          <p>
+                            {"★".repeat(review.rating)}
+                            {"☆".repeat(5 - review.rating)}
+                          </p>
+                          <p>{review.text}</p>
+                          <p>
+                            Stav:{" "}
+                            {review.isApproved
+                              ? "Schváleno"
+                              : "Čeká na schválení"}
+                          </p>
+                        </div>
+
+                        <div className="admin-product-actions">
+                          <button
+                            type="button"
+                            className="profile-action-btn"
+                            onClick={() => handleToggleReview(review)}
+                          >
+                            {review.isApproved ? "Skrýt" : "Schválit"}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="delete-card-btn"
+                            onClick={() => handleDeleteReview(review._id)}
+                          >
+                            Smazat
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
+
+            {activeSection === "homeReviews" && (
+              <section className="admin-panel-card">
+                <h2>Homepage hodnocení</h2>
+
+                <form className="admin-form" onSubmit={handleAddHomeReview}>
+                  <input
+                    name="name"
+                    placeholder="Jméno zákazníka"
+                    value={homeReviewForm.name}
+                    onChange={handleHomeReviewChange}
+                    required
+                  />
+
+                  <input
+                    name="role"
+                    placeholder="Popisek, např. Ověřený zákazník"
+                    value={homeReviewForm.role}
+                    onChange={handleHomeReviewChange}
+                  />
+
+                  <select
+                    name="rating"
+                    value={homeReviewForm.rating}
+                    onChange={handleHomeReviewChange}
+                    className="admin-pretty-select"
+                  >
+                    <option value="5">★★★★★ 5</option>
+                    <option value="4">★★★★☆ 4</option>
+                    <option value="3">★★★☆☆ 3</option>
+                    <option value="2">★★☆☆☆ 2</option>
+                    <option value="1">★☆☆☆☆ 1</option>
+                  </select>
+
+                  <input
+                    name="image"
+                    placeholder="URL obrázku / avataru nepovinné"
+                    value={homeReviewForm.image}
+                    onChange={handleHomeReviewChange}
+                  />
+
+                  <textarea
+                    name="text"
+                    placeholder="Text hodnocení"
+                    value={homeReviewForm.text}
+                    onChange={handleHomeReviewChange}
+                    rows={4}
+                    required
+                  />
+
+                  <button type="submit" className="profile-action-btn">
+                    Přidat hodnocení
+                  </button>
+                </form>
+
+                <div className="admin-reviews-list">
+                  {homeReviews.length === 0 ? (
+                    <p className="empty-text">
+                      Zatím nejsou žádná homepage hodnocení.
+                    </p>
+                  ) : (
+                    homeReviews.map((review) => (
+                      <div key={review._id} className="admin-review-card">
+                        <div>
+                          <h3>{review.name}</h3>
+                          <p>{review.role}</p>
+                          <p>
+                            {"★".repeat(review.rating)}
+                            {"☆".repeat(5 - review.rating)}
+                          </p>
+                          <p>{review.text}</p>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="delete-card-btn"
+                          onClick={() => handleDeleteHomeReview(review._id)}
+                        >
+                          Smazat
+                        </button>
                       </div>
                     ))
                   )}

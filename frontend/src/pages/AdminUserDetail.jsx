@@ -85,32 +85,32 @@ const AdminUserDetail = () => {
     }));
   };
 
-const handleUpdateUserOrderStatus = async (orderId) => {
-  setMessage("");
-  setError("");
+  const handleUpdateUserOrderStatus = async (orderId) => {
+    setMessage("");
+    setError("");
 
-  try {
-    const data = orderStatusForm[orderId] || {};
+    try {
+      const data = orderStatusForm[orderId] || {};
 
-    const response = await axios.put(
-      `http://localhost:5000/api/orders/${orderId}/status`,
-      {
-        status: data.status,
-        deliveryEstimateDays: data.deliveryEstimateDays || null,
-        deliveryWindowStart: data.deliveryWindowStart || "",
-        deliveryWindowEnd: data.deliveryWindowEnd || "",
-        sendEmail: data.sendEmail || false,
-      }
-    );
+      const response = await axios.put(
+        `http://localhost:5000/api/orders/${orderId}/status`,
+        {
+          status: data.status,
+          deliveryEstimateDays: data.deliveryEstimateDays || null,
+          deliveryWindowStart: data.deliveryWindowStart || "",
+          deliveryWindowEnd: data.deliveryWindowEnd || "",
+          sendEmail: data.sendEmail || false,
+        },
+      );
 
-    setMessage(response.data.message || "Stav objednávky byl změněn.");
-    fetchUserDetail();
-  } catch (err) {
-    setError(
-      err.response?.data?.message || "Nepodařilo se změnit stav objednávky."
-    );
-  }
-};
+      setMessage(response.data.message || "Stav objednávky byl změněn.");
+      fetchUserDetail();
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Nepodařilo se změnit stav objednávky.",
+      );
+    }
+  };
 
   const handleOrderStatusChange = (orderId, field, value) => {
     setOrderStatusForm((prev) => ({
@@ -122,26 +122,26 @@ const handleUpdateUserOrderStatus = async (orderId) => {
     }));
   };
 
-const handleDeleteUserOrder = async (orderId) => {
-  const confirmed = window.confirm("Opravdu chceš smazat tuto objednávku?");
-  if (!confirmed) return;
+  const handleDeleteUserOrder = async (orderId) => {
+    const confirmed = window.confirm("Opravdu chceš smazat tuto objednávku?");
+    if (!confirmed) return;
 
-  setMessage("");
-  setError("");
+    setMessage("");
+    setError("");
 
-  try {
-    const response = await axios.delete(
-      `http://localhost:5000/api/orders/${orderId}`
-    );
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/api/orders/${orderId}`,
+      );
 
-    setMessage(response.data.message || "Objednávka byla smazána.");
-    fetchUserDetail();
-  } catch (err) {
-    setError(
-      err.response?.data?.message || "Nepodařilo se smazat objednávku."
-    );
-  }
-};
+      setMessage(response.data.message || "Objednávka byla smazána.");
+      fetchUserDetail();
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Nepodařilo se smazat objednávku.",
+      );
+    }
+  };
 
   const handleUserDetailSubmit = async (e) => {
     e.preventDefault();

@@ -34,8 +34,8 @@ export default function Hero() {
 
 
           <div className="nav-links">
-            <a href="#kolekce">Kolekce</a>
-            <a href="#recenze">Recenze</a>
+            <button onClick={() => navigate("/catalog")}>Kolekce</button>
+            <button onClick={() => navigate("/reviews")}>Recenze</button>
             
              {!user ? (
               <Link to="/login">Přihlásit se</Link>

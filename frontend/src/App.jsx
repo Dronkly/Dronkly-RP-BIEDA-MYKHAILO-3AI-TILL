@@ -4,7 +4,7 @@ import Hero from "./components/Hero";
 import Values from "./components/Values";
 import Products from "./components/Products";
 import Story from "./components/Story";
-import Reviews from "./components/Reviews";
+import HomeReviews from "./components/Reviews";
 import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
 import { CartProvider } from './context/CartContext';
@@ -20,6 +20,7 @@ import Checkout from "./pages/Checkout";
 import AdminPanel from "./pages/AdminPanel";
 import AdminEditProduct from "./pages/AdminEditProduct";
 import AdminUserDetail from "./pages/AdminUserDetail";
+import Reviews from "./pages/Reviews";
 
 
 import CartDrawer from "./components/CartDrawer";
@@ -35,9 +36,10 @@ import Header from "./components/Header";
       <Values />
       <Products />
       <Story />
-      <Reviews />
+      <HomeReviews />
       <Newsletter />
       <Footer />
+
       
     </div>
      
@@ -88,6 +90,10 @@ export default function App() {
 
           {/*Uprava uzivatele */}
         <Route path="/admin/users/:id" element={<AdminUserDetail />} />
+
+
+         {/*Recenze */}
+        <Route path="/reviews" element={<Reviews />} />
 
         
       </Routes>
