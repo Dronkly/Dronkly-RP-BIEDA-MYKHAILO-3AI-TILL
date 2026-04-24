@@ -28,11 +28,11 @@ import ForgotPassword from "./pages/ForgotPassword";
 import CartDrawer from "./components/CartDrawer";
 
 
- function Home() {
+function Home() {
   return (
-    
-      
-        
+
+
+
     <div>
       <Hero />
       <Values />
@@ -42,10 +42,10 @@ import CartDrawer from "./components/CartDrawer";
       <Newsletter />
       <Footer />
 
-      
+
     </div>
-     
-   
+
+
   );
 }
 
@@ -53,58 +53,60 @@ export default function App() {
   return (
 
     <BrowserRouter>
-     <CartProvider>
-      <CartDrawer />
-      <Routes>
-        {/* homepage */}
-        <Route path="/" element={<Home />} />
+      <CartProvider>
+        <CartDrawer />
+        <Routes>
+          {/* homepage */}
+          <Route path="/" element={<Home />} />
 
-        {/* login */}
-        <Route path="/login" element={<Login />} />
+          {/* login */}
+          <Route path="/login" element={<Login />} />
 
-        {/* dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/*register*/}
-        <Route path="/register" element={<Register />} />
-        {/*Profile submenu */}
-        <Route path="/profile" element={<Profile />} />
+          {/* dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
-        {/*O nas */}
-        <Route path="/about" element={<About />} />
+          {/*register*/}
+          <Route path="/register" element={<Register />} />
+          {/*Profile submenu */}
+          <Route path="/profile" element={<Profile />} />
 
-         {/*Detail o produktu */}
-        <Route path="/product/:id" element={<ProductDetail />} />
-         
-         {/*Platba */}
-        <Route path="/checkout" element={<Checkout />} />
+          {/*O nas */}
+          <Route path="/about" element={<About />} />
+
+          {/*Detail o produktu */}
+          <Route path="/product/:id" element={<ProductDetail />} />
+
+          {/*Platba */}
+          <Route path="/checkout" element={<Checkout />} />
 
 
-               {/*Katalog pro nakupy */}
-        <Route path="/catalog" element={<Catalog />} />
+          {/*Katalog pro nakupy */}
+          <Route path="/catalog" element={<Catalog />} />
 
           {/*Admin panel */}
-        <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin" element={<AdminPanel />} />
 
 
           {/*Uprava produktu*/}
-        <Route path="/admin/products/:id/edit" element={<AdminEditProduct />} />
+          <Route path="/admin/products/:id/edit" element={<AdminEditProduct />} />
 
           {/*Uprava uzivatele */}
-        <Route path="/admin/users/:id" element={<AdminUserDetail />} />
+          <Route path="/admin/users/:id" element={<AdminUserDetail />} />
 
 
-         {/*Recenze */}
-        <Route path="/reviews" element={<Reviews />} />
+          {/*Recenze */}
+          <Route path="/reviews" element={<Reviews />} />
 
 
           {/*Kontakt */}
-        <Route path="/contact" element={<Contact />} />
+          <Route path="/contact" element={<Contact />} />
 
-        
-      </Routes>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+
+        </Routes>
       </CartProvider>
-      </BrowserRouter>
-   
+    </BrowserRouter>
+
   );
 }

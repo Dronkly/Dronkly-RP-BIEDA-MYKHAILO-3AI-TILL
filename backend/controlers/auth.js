@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
+
 const { encryptEmail, hashEmail, normalizeEmail } = require("../utils/crypto");
 
 const transporter = nodemailer.createTransport({
@@ -13,12 +14,23 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const isStrongPassword = (password) => {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
+};
+
 const registerUser = async (req, res) => {
   try {
     const { name, surname, email, password } = req.body;
 
     if (!name || !email || !password || !surname) {
       return res.status(400).json({ message: "Vyplň všechna pole." });
+    }
+
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({
+        message:
+          "Heslo musí mít alespoň 8 znaků, jedno velké písmeno, jedno malé písmeno a číslo.",
+      });
     }
 
     const normalizedEmail = normalizeEmail(email);
@@ -82,7 +94,12 @@ const verifyCode = async (req, res) => {
   try {
     const { email, code } = req.body;
 
+    if (!email || !code) {
+      return res.status(400).json({ message: "Email a kód jsou povinné." });
+    }
+
     const normalizedEmail = normalizeEmail(email);
+
     const user = await User.findOne({
       emailHash: hashEmail(normalizedEmail),
     });
@@ -125,6 +142,7 @@ const verifyCode = async (req, res) => {
 
     res.status(200).json({ message: "Email byl úspěšně ověřen." });
   } catch (error) {
+    console.log("VERIFY CODE ERROR:", error);
     res.status(500).json({ message: "Chyba serveru při ověření." });
   }
 };
@@ -138,6 +156,7 @@ const checkEmailAvailability = async (req, res) => {
     }
 
     const normalizedEmail = normalizeEmail(email);
+
     const existingUser = await User.findOne({
       emailHash: hashEmail(normalizedEmail),
     });
@@ -146,6 +165,7 @@ const checkEmailAvailability = async (req, res) => {
       exists: !!existingUser,
     });
   } catch (error) {
+    console.log("CHECK EMAIL ERROR:", error);
     res.status(500).json({ message: "Chyba při kontrole emailu." });
   }
 };
@@ -190,7 +210,93 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log("LOGIN ERROR:", error);
     res.status(500).json({ message: "Chyba serveru při přihlášení." });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email je povinný." });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+
+    const user = await User.findOne({
+      emailHash: hashEmail(normalizedEmail),
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Uživatel nebyl nalezen." });
+    }
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetPasswordCode = resetCode;
+    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    await user.save();
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: normalizedEmail,
+      subject: "Obnovení hesla",
+      text: `Tvůj kód pro obnovení hesla je: ${resetCode}`,
+    });
+
+    res.status(200).json({ message: "Kód byl odeslán na email." });
+  } catch (error) {
+    console.log("FORGOT PASSWORD ERROR:", error);
+    res.status(500).json({ message: "Chyba při odesílání kódu." });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, code, password } = req.body;
+
+    if (!email || !code || !password) {
+      return res.status(400).json({ message: "Vyplň všechna pole." });
+    }
+
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({
+        message:
+          "Heslo musí mít alespoň 8 znaků, jedno velké písmeno, jedno malé písmeno a číslo.",
+      });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+
+    const user = await User.findOne({
+      emailHash: hashEmail(normalizedEmail),
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Uživatel nebyl nalezen." });
+    }
+
+    if (user.resetPasswordCode !== code) {
+      return res.status(400).json({ message: "Neplatný kód." });
+    }
+
+    if (!user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      return res.status(400).json({ message: "Platnost kódu vypršela." });
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordCode = "";
+    user.resetPasswordExpires = null;
+
+    await user.save();
+
+    res.status(200).json({ message: "Heslo bylo úspěšně změněno." });
+  } catch (error) {
+    console.log("RESET PASSWORD ERROR:", error);
+    res.status(500).json({ message: "Chyba při změně hesla." });
   }
 };
 
@@ -199,4 +305,6 @@ module.exports = {
   verifyCode,
   loginUser,
   checkEmailAvailability,
+  forgotPassword,
+  resetPassword,
 };
