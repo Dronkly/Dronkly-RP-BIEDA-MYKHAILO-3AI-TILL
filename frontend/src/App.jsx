@@ -21,6 +21,7 @@ import AdminPanel from "./pages/AdminPanel";
 import AdminEditProduct from "./pages/AdminEditProduct";
 import AdminUserDetail from "./pages/AdminUserDetail";
 import Reviews from "./pages/Reviews";
+import Contact from "./pages/Contact";
 
 
 import CartDrawer from "./components/CartDrawer";
@@ -94,6 +95,10 @@ export default function App() {
 
          {/*Recenze */}
         <Route path="/reviews" element={<Reviews />} />
+
+
+          {/*Kontakt */}
+        <Route path="/contact" element={<Contact />} />
 
         
       </Routes>
