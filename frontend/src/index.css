@@ -3442,3 +3442,90 @@ body {
   border-radius: 12px;
   cursor: pointer;
 }
+
+.forgot-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 90px 20px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(47, 102, 86, 0.18), transparent 30%),
+    radial-gradient(circle at 80% 80%, rgba(205, 154, 91, 0.18), transparent 30%),
+    linear-gradient(135deg, #fbfaf6, #f1eadf);
+}
+
+.forgot-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 38px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(47, 102, 86, 0.14);
+  box-shadow: 0 30px 90px rgba(47, 102, 86, 0.16);
+  backdrop-filter: blur(16px);
+}
+
+.forgot-card h1 {
+  color: #153d33;
+  font-size: 42px;
+  margin: 8px 0 12px;
+}
+
+.forgot-card p {
+  color: #6d665e;
+  margin-bottom: 22px;
+}
+
+.forgot-card form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.forgot-card label {
+  font-weight: 800;
+  color: #214d40;
+}
+
+.forgot-card input {
+  width: 100%;
+  border: 1px solid #dfd1c0;
+  background: #fffaf5;
+  border-radius: 16px;
+  padding: 14px 15px;
+  outline: none;
+  font: inherit;
+}
+
+.forgot-card input:focus {
+  border-color: #2f6656;
+  box-shadow: 0 0 0 4px rgba(47, 102, 86, 0.14);
+  background: white;
+}
+
+.forgot-card form button {
+  border: 0;
+  border-radius: 16px;
+  padding: 15px 18px;
+  background: #2f6656;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.forgot-password-btn,
+.forgot-back-btn {
+  margin-top: 14px;
+  border: 0;
+  background: transparent;
+  color: #2f6656;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.forgot-password-btn:hover,
+.forgot-back-btn:hover {
+  text-decoration: underline;
+}

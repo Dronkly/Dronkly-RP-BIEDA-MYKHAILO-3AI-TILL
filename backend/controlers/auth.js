@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcryptjs");
+const { encryptEmail, hashEmail, normalizeEmail } = require("../utils/crypto");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -19,11 +21,16 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Vyplň všechna pole." });
     }
 
-    let existingUser = await User.findOne({ email });
+    const normalizedEmail = normalizeEmail(email);
+    const emailHashValue = hashEmail(normalizedEmail);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let existingUser = await User.findOne({ emailHash: emailHashValue });
 
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000,
     ).toString();
+
     const expires = new Date(Date.now() + 10 * 60 * 1000);
 
     if (existingUser) {
@@ -35,7 +42,9 @@ const registerUser = async (req, res) => {
 
       existingUser.name = name;
       existingUser.surname = surname;
-      existingUser.password = password;
+      existingUser.email = encryptEmail(normalizedEmail);
+      existingUser.emailHash = emailHashValue;
+      existingUser.password = hashedPassword;
       existingUser.verificationCode = verificationCode;
       existingUser.verificationCodeExpires = expires;
 
@@ -44,8 +53,9 @@ const registerUser = async (req, res) => {
       existingUser = await User.create({
         name,
         surname,
-        email,
-        password,
+        email: encryptEmail(normalizedEmail),
+        emailHash: emailHashValue,
+        password: hashedPassword,
         isVerified: false,
         verificationCode,
         verificationCodeExpires: expires,
@@ -54,7 +64,7 @@ const registerUser = async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: email,
+      to: normalizedEmail,
       subject: "Ověřovací kód k registraci",
       text: `Tvůj ověřovací kód je: ${verificationCode}`,
     });
@@ -72,7 +82,10 @@ const verifyCode = async (req, res) => {
   try {
     const { email, code } = req.body;
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = normalizeEmail(email);
+    const user = await User.findOne({
+      emailHash: hashEmail(normalizedEmail),
+    });
 
     if (!user) {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
@@ -124,7 +137,10 @@ const checkEmailAvailability = async (req, res) => {
       return res.status(400).json({ message: "Email je povinný." });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = normalizeEmail(email);
+    const existingUser = await User.findOne({
+      emailHash: hashEmail(normalizedEmail),
+    });
 
     res.status(200).json({
       exists: !!existingUser,
@@ -142,7 +158,11 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Vyplň email a heslo." });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = normalizeEmail(email);
+
+    const user = await User.findOne({
+      emailHash: hashEmail(normalizedEmail),
+    });
 
     if (!user) {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
@@ -152,7 +172,9 @@ const loginUser = async (req, res) => {
       return res.status(403).json({ message: "Účet ještě není ověřený." });
     }
 
-    if (user.password !== password) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
       return res.status(401).json({ message: "Špatné heslo." });
     }
 
@@ -160,9 +182,10 @@ const loginUser = async (req, res) => {
       message: "Přihlášení proběhlo úspěšně.",
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         surname: user.surname,
-        email: user.email,
+        email: normalizedEmail,
         role: user.role,
       },
     });
@@ -171,4 +194,9 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, verifyCode, loginUser, checkEmailAvailability };
+module.exports = {
+  registerUser,
+  verifyCode,
+  loginUser,
+  checkEmailAvailability,
+};

@@ -22,10 +22,11 @@ import AdminEditProduct from "./pages/AdminEditProduct";
 import AdminUserDetail from "./pages/AdminUserDetail";
 import Reviews from "./pages/Reviews";
 import Contact from "./pages/Contact";
+import ForgotPassword from "./pages/ForgotPassword";
 
 
 import CartDrawer from "./components/CartDrawer";
-import Header from "./components/Header";
+
 
  function Home() {
   return (

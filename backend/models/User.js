@@ -4,29 +4,29 @@ const userSchema = new mongoose.Schema(
   {
 
     discounts: [
-  {
-    code: {
-      type: String,
-      default: "",
-    },
-    value: {
-      type: Number,
-      default: 0,
-    },
-    isUsed: {
-      type: Boolean,
-      default: false,
-    },
-    title: {
-      type: String,
-      default: "",
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-  },
-],
+      {
+        code: {
+          type: String,
+          default: "",
+        },
+        value: {
+          type: Number,
+          default: 0,
+        },
+        isUsed: {
+          type: Boolean,
+          default: false,
+        },
+        title: {
+          type: String,
+          default: "",
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     name: {
       type: String,
       required: true,
@@ -44,12 +44,30 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+
+
+    emailHash: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    resetPasswordCode: {
+      type: String,
+      default: "",
+    },
+    
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
+
     password: {
       type: String,
       required: true,
     },
 
-     phone: {
+    phone: {
       type: String,
       default: '',
       trim: true,
@@ -100,7 +118,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 
-  
+
 );
 
 module.exports = mongoose.model('User', userSchema);
