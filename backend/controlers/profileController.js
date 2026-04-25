@@ -1,11 +1,25 @@
 const User = require("../models/User");
 const PaymentMethod = require("../models/PaymentMethod");
+const Order = require("../models/Order");
+const { hashEmail, decryptEmail } = require("../utils/crypto");
+
+const getPlainEmail = (user) => {
+  if (!user?.email) return "";
+
+  if (user.email.includes(":")) {
+    return decryptEmail(user.email);
+  }
+
+  return user.email;
+};
 
 const getProfile = async (req, res) => {
   try {
     const { email } = req.params;
 
-    const user = await User.findOne({ email }).select("-password");
+    const user = await User.findOne({ emailHash: hashEmail(email) }).select(
+      "-password",
+    );
 
     if (!user) {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
@@ -14,7 +28,10 @@ const getProfile = async (req, res) => {
     const paymentMethods = await PaymentMethod.find({ userId: user._id });
 
     res.status(200).json({
-      user,
+      user: {
+        ...user.toObject(),
+        email: getPlainEmail(user),
+      },
       paymentMethods,
     });
   } catch (error) {
@@ -29,7 +46,12 @@ const getAllUsers = async (req, res) => {
       .select("-password -verificationCode -verificationCodeExpires")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(users);
+    const decryptedUsers = users.map((user) => ({
+      ...user.toObject(),
+      email: getPlainEmail(user),
+    }));
+
+    res.status(200).json(decryptedUsers);
   } catch (error) {
     console.error("GET ALL USERS ERROR:", error);
     res.status(500).json({ message: "Chyba při načítání uživatelů." });
@@ -42,7 +64,7 @@ const updateProfile = async (req, res) => {
     const { name, surname, phone, birthDate, street, city, zipCode, country } =
       req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ emailHash: hashEmail(email) });
 
     if (!user) {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
@@ -61,9 +83,13 @@ const updateProfile = async (req, res) => {
 
     res.status(200).json({
       message: "Profil byl úspěšně upraven.",
-      user,
+      user: {
+        ...user.toObject(),
+        email: getPlainEmail(user),
+      },
     });
   } catch (error) {
+    console.error("UPDATE PROFILE ERROR:", error);
     res.status(500).json({ message: "Chyba při úpravě profilu." });
   }
 };
@@ -80,7 +106,7 @@ const addPaymentMethod = async (req, res) => {
       isDefault,
     } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ emailHash: hashEmail(email) });
 
     if (!user) {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
@@ -128,34 +154,8 @@ const addPaymentMethod = async (req, res) => {
       paymentMethod,
     });
   } catch (error) {
+    console.error("ADD PAYMENT METHOD ERROR:", error);
     res.status(500).json({ message: "Chyba při přidávání platební metody." });
-  }
-};
-
-const addDiscountToUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { code, value, title } = req.body;
-
-    const user = await User.findById(id);
-
-    if (!user) {
-      return res.status(404).json({ message: "Uživatel nebyl nalezen." });
-    }
-
-    user.discounts.push({
-      code,
-      value,
-      title,
-      isUsed: false,
-    });
-
-    await user.save();
-
-    res.status(200).json({ message: "Sleva byla přidána uživateli.", user });
-  } catch (error) {
-    console.error("ADD DISCOUNT TO USER ERROR:", error);
-    res.status(500).json({ message: "Chyba při přidávání slevy." });
   }
 };
 
@@ -163,7 +163,7 @@ const deletePaymentMethod = async (req, res) => {
   try {
     const { email, methodId } = req.params;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ emailHash: hashEmail(email) });
 
     if (!user) {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
@@ -187,8 +187,6 @@ const deletePaymentMethod = async (req, res) => {
   }
 };
 
-const Order = require("../models/Order");
-
 const getAdminUserDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -201,12 +199,17 @@ const getAdminUserDetail = async (req, res) => {
       return res.status(404).json({ message: "Uživatel nebyl nalezen." });
     }
 
-    const orders = await Order.find({ userEmail: user.email }).sort({
-      createdAt: -1,
-    });
+    const plainEmail = getPlainEmail(user);
+
+    const orders = await Order.find({
+      $or: [{ userEmail: plainEmail }, { "contact.email": plainEmail }],
+    }).sort({ createdAt: -1 });
 
     res.status(200).json({
-      user,
+      user: {
+        ...user.toObject(),
+        email: plainEmail,
+      },
       orders,
     });
   } catch (error) {
@@ -250,11 +253,47 @@ const updateAdminUser = async (req, res) => {
 
     res.status(200).json({
       message: "Uživatel byl úspěšně upraven.",
-      user,
+      user: {
+        ...user.toObject(),
+        email: getPlainEmail(user),
+      },
     });
   } catch (error) {
     console.error("UPDATE ADMIN USER ERROR:", error);
     res.status(500).json({ message: "Chyba při úpravě uživatele." });
+  }
+};
+
+const addDiscountToUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { code, value, title } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Uživatel nebyl nalezen." });
+    }
+
+    user.discounts.push({
+      code,
+      value,
+      title,
+      isUsed: false,
+    });
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Sleva byla přidána uživateli.",
+      user: {
+        ...user.toObject(),
+        email: getPlainEmail(user),
+      },
+    });
+  } catch (error) {
+    console.error("ADD DISCOUNT TO USER ERROR:", error);
+    res.status(500).json({ message: "Chyba při přidávání slevy." });
   }
 };
 

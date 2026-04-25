@@ -49,7 +49,7 @@ const isValidCountry = (value) =>
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartItems, totalPrice, clearCart } = useCart();
+  const { cartItems, totalPrice } = useCart();
 
   const storedUser = JSON.parse(localStorage.getItem("user"));
 
@@ -84,6 +84,7 @@ const Checkout = () => {
       const response = await axios.get(
         `http://localhost:5000/api/profile/${storedUser.email}`,
       );
+
       setPaymentMethods(response.data.paymentMethods || []);
       setAvailableDiscounts(
         (response.data.user?.discounts || []).filter(
@@ -182,44 +183,6 @@ const Checkout = () => {
       return;
     }
 
-    if (paymentMethods.length > 0 && !selectedPaymentMethod) {
-      setError("Vyber platební metodu.");
-      return;
-    }
-
-    if (paymentMethods.length === 0) {
-      const rawCardNumber = onlyDigits(formData.cardNumber);
-
-      if (!formData.cardholderName.trim()) {
-        setError("Zadej jméno na kartě.");
-        return;
-      }
-
-      if (
-        !/^[a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]{2,}$/.test(
-          formData.cardholderName.trim(),
-        )
-      ) {
-        setError("Jméno na kartě obsahuje neplatné znaky.");
-        return;
-      }
-
-      if (rawCardNumber.length !== 16) {
-        setError("Číslo karty musí mít 16 číslic.");
-        return;
-      }
-
-      const month = Number(formData.expiryMonth);
-      if (!formData.expiryMonth || month < 1 || month > 12) {
-        setError("Měsíc expirace musí být od 1 do 12.");
-        return;
-      }
-
-      if (!/^\d{4}$/.test(formData.expiryYear)) {
-        setError("Rok expirace musí mít 4 číslice.");
-        return;
-      }
-    }
     if (!isValidCity(formData.city)) {
       setError("Zadej platné město.");
       return;
@@ -234,9 +197,10 @@ const Checkout = () => {
       setError("Vyber platnou zemi z nabídky.");
       return;
     }
+
     try {
-      const payload = {
-        userEmail: storedUser?.email || "",
+      const orderPayload = {
+        userEmail: storedUser?.email || formData.email,
         customerName: storedUser?.name || "",
         customerSurname: storedUser?.surname || "",
         items: cartItems,
@@ -260,28 +224,23 @@ const Checkout = () => {
           zipCode: formData.zipCode,
           country: formData.country,
         },
-        manualPayment:
-          paymentMethods.length === 0
-            ? {
-                cardholderName: formData.cardholderName,
-                cardLast4: onlyDigits(formData.cardNumber).slice(-4),
-                expiryMonth: formData.expiryMonth,
-                expiryYear: formData.expiryYear,
-              }
-            : null,
+        manualPayment: null,
+      };
+
+      localStorage.setItem("pendingOrder", JSON.stringify(orderPayload));
+
+      const stripePayload = {
+        items: cartItems,
+        customerEmail: formData.email,
+        discountCode: selectedDiscount?.code || "",
       };
 
       const response = await axios.post(
-        "http://localhost:5000/api/orders",
-        payload,
+        "http://localhost:5000/api/stripe/create-checkout-session",
+        stripePayload,
       );
 
-      setMessage(response.data.message || "Platba proběhla úspěšně.");
-      clearCart();
-
-      setTimeout(() => {
-        navigate("/catalog");
-      }, 1500);
+      window.location.href = response.data.url;
     } catch (err) {
       setError(err.response?.data?.message || "Platba se nepodařila.");
     }
@@ -370,65 +329,11 @@ const Checkout = () => {
               <div className="checkout-section">
                 <h2>Platba</h2>
 
-                {paymentMethods.length > 0 ? (
-                  <div className="saved-payments">
-                    {paymentMethods.map((method) => (
-                      <label key={method._id} className="saved-payment-card">
-                        <input
-                          type="radio"
-                          name="savedPayment"
-                          value={method._id}
-                          checked={selectedPaymentMethod === method._id}
-                          onChange={(e) =>
-                            setSelectedPaymentMethod(e.target.value)
-                          }
-                        />
-                        <span>
-                          {method.cardBrand} •••• {method.last4} (
-                          {method.cardholderName})
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <>
-                    <label>Jméno na kartě</label>
-                    <input
-                      name="cardholderName"
-                      value={formData.cardholderName}
-                      onChange={handleChange}
-                      required
-                    />
-
-                    <label>Číslo karty</label>
-                    <input
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleChange}
-                      placeholder="1234 5678 9012 3456"
-                      required
-                    />
-
-                    <label>Měsíc expirace</label>
-                    <input
-                      name="expiryMonth"
-                      value={formData.expiryMonth}
-                      onChange={handleChange}
-                      placeholder="MM"
-                      required
-                    />
-
-                    <label>Rok expirace</label>
-                    <input
-                      name="expiryYear"
-                      value={formData.expiryYear}
-                      onChange={handleChange}
-                      placeholder="YYYY"
-                      required
-                    />
-                  </>
-                )}
+                <p className="checkout-stripe-info">
+                  Platba
+                </p>
               </div>
+
               {availableDiscounts.length > 0 && (
                 <div className="checkout-section">
                   <h2>Sleva</h2>
@@ -458,6 +363,7 @@ const Checkout = () => {
                   </div>
                 </div>
               )}
+
               <button type="submit" className="checkout-pay-btn">
                 Zaplatit
               </button>
@@ -474,6 +380,7 @@ const Checkout = () => {
                   <span>{item.price * item.quantity} Kč</span>
                 </div>
               ))}
+
               {selectedDiscount && (
                 <div className="checkout-summary-item">
                   <span>Sleva</span>

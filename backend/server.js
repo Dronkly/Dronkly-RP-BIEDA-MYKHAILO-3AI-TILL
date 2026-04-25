@@ -12,6 +12,7 @@ const productRoutes = require('./routes/product');
 const orderRoutes = require('./routes/order');
 const reviewRoutes = require("./routes/review");
 const homeReviewRoutes = require("./routes/homeReview");
+const stripeRoutes = require("./routes/stripe");
 
 
 
@@ -26,6 +27,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/home-reviews", homeReviewRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Ahoj z backendu! 👋' });
