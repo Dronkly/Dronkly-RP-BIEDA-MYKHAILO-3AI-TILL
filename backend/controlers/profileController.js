@@ -6,12 +6,27 @@ const { hashEmail, decryptEmail } = require("../utils/crypto");
 const getPlainEmail = (user) => {
   if (!user?.email) return "";
 
-  if (user.email.includes(":")) {
-    return decryptEmail(user.email);
-  }
+  try {
+    if (user.email.includes(":")) {
+      return decryptEmail(user.email);
+    }
 
-  return user.email;
+    return user.email;
+  } catch (error) {
+    return user.email;
+  }
 };
+
+const safeUser = (user) => ({
+  ...user.toObject(),
+  email: getPlainEmail(user),
+  emailHash: undefined,
+  password: undefined,
+  verificationCode: undefined,
+  verificationCodeExpires: undefined,
+  resetPasswordCode: undefined,
+  resetPasswordExpires: undefined,
+});
 
 const getProfile = async (req, res) => {
   try {
@@ -28,10 +43,7 @@ const getProfile = async (req, res) => {
     const paymentMethods = await PaymentMethod.find({ userId: user._id });
 
     res.status(200).json({
-      user: {
-        ...user.toObject(),
-        email: getPlainEmail(user),
-      },
+      user: safeUser(user),
       paymentMethods,
     });
   } catch (error) {
@@ -46,12 +58,7 @@ const getAllUsers = async (req, res) => {
       .select("-password -verificationCode -verificationCodeExpires")
       .sort({ createdAt: -1 });
 
-    const decryptedUsers = users.map((user) => ({
-      ...user.toObject(),
-      email: getPlainEmail(user),
-    }));
-
-    res.status(200).json(decryptedUsers);
+    res.status(200).json(users.map((user) => safeUser(user)));
   } catch (error) {
     console.error("GET ALL USERS ERROR:", error);
     res.status(500).json({ message: "Chyba při načítání uživatelů." });
@@ -83,10 +90,7 @@ const updateProfile = async (req, res) => {
 
     res.status(200).json({
       message: "Profil byl úspěšně upraven.",
-      user: {
-        ...user.toObject(),
-        email: getPlainEmail(user),
-      },
+      user: safeUser(user),
     });
   } catch (error) {
     console.error("UPDATE PROFILE ERROR:", error);
@@ -206,10 +210,7 @@ const getAdminUserDetail = async (req, res) => {
     }).sort({ createdAt: -1 });
 
     res.status(200).json({
-      user: {
-        ...user.toObject(),
-        email: plainEmail,
-      },
+      user: safeUser(user),
       orders,
     });
   } catch (error) {
@@ -253,10 +254,7 @@ const updateAdminUser = async (req, res) => {
 
     res.status(200).json({
       message: "Uživatel byl úspěšně upraven.",
-      user: {
-        ...user.toObject(),
-        email: getPlainEmail(user),
-      },
+      user: safeUser(user),
     });
   } catch (error) {
     console.error("UPDATE ADMIN USER ERROR:", error);
@@ -286,10 +284,7 @@ const addDiscountToUser = async (req, res) => {
 
     res.status(200).json({
       message: "Sleva byla přidána uživateli.",
-      user: {
-        ...user.toObject(),
-        email: getPlainEmail(user),
-      },
+      user: safeUser(user),
     });
   } catch (error) {
     console.error("ADD DISCOUNT TO USER ERROR:", error);

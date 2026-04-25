@@ -14,11 +14,6 @@ const countryOptions = [
 
 const onlyDigits = (value) => value.replace(/\D/g, "");
 
-const formatCardNumber = (value) => {
-  const digits = onlyDigits(value).slice(0, 16);
-  return digits.replace(/(.{4})/g, "$1 ").trim();
-};
-
 const formatCity = (value) =>
   value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, "");
 
@@ -50,7 +45,6 @@ const isValidCountry = (value) =>
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, totalPrice } = useCart();
-
   const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -61,10 +55,6 @@ const Checkout = () => {
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    cardholderName: "",
-    cardNumber: "",
-    expiryMonth: "",
-    expiryYear: "",
     phone: "",
     email: storedUser?.email || "",
     street: "",
@@ -74,9 +64,7 @@ const Checkout = () => {
   });
 
   useEffect(() => {
-    if (storedUser?.email) {
-      fetchPaymentMethods();
-    }
+    if (storedUser?.email) fetchPaymentMethods();
   }, []);
 
   const fetchPaymentMethods = async () => {
@@ -106,46 +94,14 @@ const Checkout = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     let newValue = value;
 
-    if (name === "cardholderName") {
-      newValue = value
-        .replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s-]/g, "")
-        .slice(0, 50);
-    }
-
-    if (name === "cardNumber") {
-      newValue = formatCardNumber(value);
-    }
-
-    if (name === "expiryMonth") {
-      newValue = onlyDigits(value).slice(0, 2);
-    }
-
-    if (name === "expiryYear") {
-      newValue = onlyDigits(value).slice(0, 4);
-    }
-
-    if (name === "phone") {
+    if (name === "phone")
       newValue = value.replace(/[^0-9+\s]/g, "").slice(0, 15);
-    }
-
-    if (name === "zipCode") {
-      newValue = formatZipCode(value);
-    }
-
-    if (name === "city") {
-      newValue = formatCity(value);
-    }
-
-    if (name === "street") {
-      newValue = formatStreet(value);
-    }
-
-    if (name === "country") {
-      newValue = formatCountry(value);
-    }
+    if (name === "zipCode") newValue = formatZipCode(value);
+    if (name === "city") newValue = formatCity(value);
+    if (name === "street") newValue = formatStreet(value);
+    if (name === "country") newValue = formatCountry(value);
 
     setFormData((prev) => ({
       ...prev,
@@ -158,15 +114,9 @@ const Checkout = () => {
     setError("");
     setMessage("");
 
-    if (!isValidEmail(formData.email)) {
-      setError("Zadej platný email.");
-      return;
-    }
-
-    if (!isValidPhone(formData.phone)) {
-      setError("Zadej platné telefonní číslo.");
-      return;
-    }
+    if (!isValidEmail(formData.email)) return setError("Zadej platný email.");
+    if (!isValidPhone(formData.phone))
+      return setError("Zadej platné telefonní číslo.");
 
     if (
       !formData.street ||
@@ -174,29 +124,15 @@ const Checkout = () => {
       !formData.zipCode ||
       !formData.country
     ) {
-      setError("Vyplň celou adresu.");
-      return;
+      return setError("Vyplň celou adresu.");
     }
 
-    if (cartItems.length === 0) {
-      setError("Košík je prázdný.");
-      return;
-    }
-
-    if (!isValidCity(formData.city)) {
-      setError("Zadej platné město.");
-      return;
-    }
-
-    if (!isValidZipCode(formData.zipCode)) {
-      setError("PSČ musí být ve formátu 123 45.");
-      return;
-    }
-
-    if (!isValidCountry(formData.country)) {
-      setError("Vyber platnou zemi z nabídky.");
-      return;
-    }
+    if (cartItems.length === 0) return setError("Košík je prázdný.");
+    if (!isValidCity(formData.city)) return setError("Zadej platné město.");
+    if (!isValidZipCode(formData.zipCode))
+      return setError("PSČ musí být ve formátu 123 45.");
+    if (!isValidCountry(formData.country))
+      return setError("Vyber platnou zemi z nabídky.");
 
     try {
       const orderPayload = {
@@ -233,6 +169,7 @@ const Checkout = () => {
         items: cartItems,
         customerEmail: formData.email,
         discountCode: selectedDiscount?.code || "",
+        discountedTotalPrice,
       };
 
       const response = await axios.post(
@@ -328,10 +265,7 @@ const Checkout = () => {
 
               <div className="checkout-section">
                 <h2>Platba</h2>
-
-                <p className="checkout-stripe-info">
-                  Platba
-                </p>
+                <p>Platba proběhne bezpečně přes Stripe.</p>
               </div>
 
               {availableDiscounts.length > 0 && (

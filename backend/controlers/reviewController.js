@@ -1,4 +1,31 @@
 const Review = require("../models/Review");
+const { decryptEmail } = require("../utils/crypto");
+
+const getPlainEmail = (user) => {
+  if (!user?.email) return "";
+
+  try {
+    if (user.email.includes(":")) {
+      return decryptEmail(user.email);
+    }
+
+    return user.email;
+  } catch (error) {
+    return user.email;
+  }
+};
+
+const formatReview = (review) => {
+  const reviewObject = review.toObject();
+
+  if (reviewObject.user) {
+    reviewObject.user.email = getPlainEmail(reviewObject.user);
+    delete reviewObject.user.emailHash;
+    delete reviewObject.user.password;
+  }
+
+  return reviewObject;
+};
 
 const getPublicReviews = async (req, res) => {
   try {
@@ -6,7 +33,7 @@ const getPublicReviews = async (req, res) => {
       .populate("user", "name surname email")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(reviews);
+    res.status(200).json(reviews.map(formatReview));
   } catch (error) {
     res.status(500).json({ message: "Nepodařilo se načíst recenze." });
   }
@@ -18,7 +45,7 @@ const getAllReviewsAdmin = async (req, res) => {
       .populate("user", "name surname email")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(reviews);
+    res.status(200).json(reviews.map(formatReview));
   } catch (error) {
     res.status(500).json({ message: "Nepodařilo se načíst recenze." });
   }
@@ -56,7 +83,7 @@ const updateReviewAdmin = async (req, res) => {
     const review = await Review.findByIdAndUpdate(
       req.params.id,
       { rating, text, isApproved },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("user", "name surname email");
 
     if (!review) {
@@ -65,7 +92,7 @@ const updateReviewAdmin = async (req, res) => {
 
     res.status(200).json({
       message: "Recenze byla upravena.",
-      review,
+      review: formatReview(review),
     });
   } catch (error) {
     res.status(500).json({ message: "Nepodařilo se upravit recenzi." });

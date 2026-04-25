@@ -2,14 +2,16 @@ const Order = require("../models/Order");
 const User = require("../models/User");
 
 const sendOrderStatusEmail = require("../utils/sendOrderStatusEmail");
+const sendOrderEmail = require("../utils/sendEmail");
+const { hashEmail } = require("../utils/crypto");
 
 const getOrdersByUserEmail = async (req, res) => {
   try {
     const { email } = req.params;
 
-    const orders = await Order.find({ userEmail: email }).sort({
-      createdAt: -1,
-    });
+    const orders = await Order.find({
+      $or: [{ userEmail: email }, { "contact.email": email }],
+    }).sort({ createdAt: -1 });
 
     res.status(200).json(orders);
   } catch (error) {
@@ -47,7 +49,6 @@ const getAllOrders = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const sendOrderEmail = require("../utils/sendEmail");
     const {
       userEmail,
       customerName,
@@ -92,26 +93,26 @@ const createOrder = async (req, res) => {
       status: "paid",
     });
 
-
-
     if (appliedDiscount?.code && userEmail) {
-      const user = await User.findOne({ email: userEmail });
+      const user = await User.findOne({
+        emailHash: hashEmail(userEmail),
+      });
 
       if (user) {
-        user.discounts = (user.discounts || []).map((discount) => {
-          if (discount.code === appliedDiscount.code && !discount.isUsed) {
-            return {
-              ...discount.toObject(),
-              isUsed: true,
-            };
-          }
-          return discount;
-        });
+        const discount = user.discounts.find(
+          (d) => d.code === appliedDiscount.code && !d.isUsed,
+        );
 
-        await user.save();
+        if (discount) {
+          discount.isUsed = true;
+          await user.save();
+        }
       }
     }
-    await sendOrderEmail(contact.email, order);
+
+    if (contact?.email) {
+      await sendOrderEmail(contact.email, order);
+    }
 
     res.status(201).json({
       message: "Objednávka byla úspěšně zaplacena.",
